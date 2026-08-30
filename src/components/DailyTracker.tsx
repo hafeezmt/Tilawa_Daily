@@ -6,21 +6,25 @@ import {
   Calendar, 
   BookOpen, 
   Plus, 
-  Flame
+  Flame,
+  LogIn
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { HIZB_LIST } from '../data/quranMetadata';
 import { HizbInfo } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface DailyTrackerProps {
   onSelectHizb: (hizbNumber: number) => void;
 }
 
 export const DailyTracker: React.FC<DailyTrackerProps> = ({ onSelectHizb }) => {
+  const { user, isAuthenticated, openAuthModal, incrementHizbCount } = useAuth();
+
   // 60 Hizb state initialized from metadata
   const [hizbs, setHizbs] = useState<HizbInfo[]>(HIZB_LIST);
   const [activeView, setActiveView] = useState<'today' | 'all'>('today');
-  const [claimedName, setClaimedName] = useState('');
+  const [claimedName, setClaimedName] = useState(user?.name || '');
   const [selectedClaimHizb, setSelectedClaimHizb] = useState<number | null>(null);
 
   // Today's target is Hizb 1 to 5
@@ -45,11 +49,22 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({ onSelectHizb }) => {
             origin: { y: 0.7 },
             colors: ['#E5B25D', '#FDE8B3', '#38BDF8', '#10B981']
           });
+          incrementHizbCount();
         }
         return { ...h, status: nextStatus };
       }
       return h;
     }));
+  };
+
+  // Open Claim Modal or Prompt Auth
+  const handleClaimClick = (hizbNumber: number) => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
+    setClaimedName(user?.name || '');
+    setSelectedClaimHizb(hizbNumber);
   };
 
   // Claim a Hizb for recitation
@@ -265,7 +280,7 @@ export const DailyTracker: React.FC<DailyTrackerProps> = ({ onSelectHizb }) => {
                 </button>
 
                 <button
-                  onClick={() => setSelectedClaimHizb(hizb.hizbNumber)}
+                  onClick={() => handleClaimClick(hizb.hizbNumber)}
                   className="py-2 px-3 rounded-xl bg-gold-500/20 hover:bg-gold-500/30 border border-gold-500/30 text-xs font-bold text-gold-300 flex items-center gap-1 transition-colors"
                   title="Claim this Hizb to recite"
                 >

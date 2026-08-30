@@ -5,10 +5,13 @@ import { LiveHalaqahRoom } from './components/LiveHalaqahRoom';
 import { QuranReader } from './components/QuranReader';
 import { DailyTracker } from './components/DailyTracker';
 import { GroupRulesModal } from './components/GroupRulesModal';
+import { AuthModal } from './components/AuthModal';
+import { UserProfileDrawer } from './components/UserProfileDrawer';
 import { Logo } from './components/Logo';
+import { AuthProvider } from './context/AuthContext';
 import { Sparkles } from 'lucide-react';
 
-export function App() {
+function AppContent() {
   // Active Navigation Tab
   const [activeTab, setActiveTab] = useState<'halaqah' | 'quran' | 'tracker'>('halaqah');
   
@@ -95,6 +98,12 @@ export function App() {
         onClose={() => setIsRulesModalOpen(false)}
       />
 
+      {/* Auth Modal (Login / Sign Up) */}
+      <AuthModal />
+
+      {/* User Profile Drawer */}
+      <UserProfileDrawer />
+
       {/* Footer (Glass Surface) */}
       <footer className="relative z-10 w-full glass-panel border-t border-white/10 mt-12 py-8 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
@@ -126,6 +135,14 @@ export function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

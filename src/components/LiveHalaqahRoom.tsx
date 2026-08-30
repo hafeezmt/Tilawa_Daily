@@ -16,9 +16,11 @@ import {
   Send,
   Sliders,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  LogIn
 } from 'lucide-react';
 import { QueueMember, ChatMessage } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 interface LiveHalaqahRoomProps {
   currentHizb: number;
@@ -30,6 +32,8 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
   currentHizb,
   onNavigateToHizb,
 }) => {
+  const { user, isAuthenticated, openAuthModal, incrementHizbCount } = useAuth();
+
   // Voice Call States
   const [isMuted, setIsMuted] = useState(true);
   const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
@@ -66,9 +70,15 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
   ]);
 
   const [hasRaisedHand, setHasRaisedHand] = useState(false);
-  const [myUserName, setMyUserName] = useState('');
   const [selectedHizbForQueue, setSelectedHizbForQueue] = useState(currentHizb);
   const [isAdminMode, setIsAdminMode] = useState(false);
+
+  // Automatically enable admin mode if user is ustadh/admin
+  useEffect(() => {
+    if (user?.role === 'ustadh' || user?.role === 'admin') {
+      setIsAdminMode(true);
+    }
+  }, [user]);
 
   // Chat & Notes State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -123,7 +133,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
         };
         updateBars();
       } catch (err) {
-        console.warn('Microphone permission not granted or available, using synthetic visualizer', err);
+        console.warn('Microphone permission not granted, using synthetic visualizer', err);
         setIsMuted(false);
       }
     } else {
@@ -157,14 +167,18 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
 
   // Handle Raise Hand
   const handleRaiseHand = () => {
+    if (!isAuthenticated) {
+      openAuthModal();
+      return;
+    }
+
     if (hasRaisedHand) {
-      setQueue(prev => prev.filter(item => item.id !== 'my-queue-id'));
+      setQueue(prev => prev.filter(item => item.id !== (user?.id || 'my-queue-id')));
       setHasRaisedHand(false);
     } else {
-      const name = myUserName.trim() || 'Dan Uwa / Member';
       const newMember: QueueMember = {
-        id: 'my-queue-id',
-        name,
+        id: user?.id || 'my-queue-id',
+        name: user?.name || 'Dan Uwa / Member',
         hizbTarget: selectedHizbForQueue,
         joinedAt: 'Just now'
       };
@@ -186,9 +200,10 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
         duration: 0,
       });
       setQueue(prev => prev.filter(q => q.id !== queueId));
-      if (member.id === 'my-queue-id') {
+      if (member.id === user?.id || member.id === 'my-queue-id') {
         setHasRaisedHand(false);
         setIsMuted(false);
+        incrementHizbCount();
       }
     }
   };
@@ -199,8 +214,8 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     if (!chatInput.trim()) return;
     const newMsg: ChatMessage = {
       id: Date.now().toString(),
-      sender: myUserName.trim() || 'Member',
-      role: isAdminMode ? 'admin' : 'member',
+      sender: user?.name || 'Member',
+      role: user?.role === 'ustadh' || user?.role === 'admin' ? 'admin' : 'member',
       text: chatInput.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
@@ -414,22 +429,15 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
             <span className="text-xs text-slate-400 font-medium">5 Hizb Cycle</span>
           </div>
 
-          {/* Name input for Raising Hand */}
+          {/* Queue Hizb target selector when logged in */}
           {!hasRaisedHand && (
-            <div className="mb-4 p-3 rounded-2xl glass-card border border-white/10 flex flex-col gap-2">
-              <label className="text-[11px] font-semibold uppercase text-slate-400">Join Recitation Queue</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter your name..."
-                  value={myUserName}
-                  onChange={(e) => setMyUserName(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-xl glass-input text-xs font-medium focus:ring-1 focus:ring-gold-400"
-                />
+            <div className="mb-4 p-3 rounded-2xl glass-card border border-white/10 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs text-slate-300">
+                <span className="font-bold text-gold-300">Target Hizb:</span>
                 <select
                   value={selectedHizbForQueue}
                   onChange={(e) => setSelectedHizbForQueue(Number(e.target.value))}
-                  className="px-2.5 py-2 rounded-xl glass-input text-xs font-bold text-gold-300"
+                  className="px-2.5 py-1 rounded-xl glass-input text-xs font-bold text-gold-300"
                 >
                   <option value={1}>Hizb 1</option>
                   <option value={2}>Hizb 2</option>
@@ -438,6 +446,16 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                   <option value={5}>Hizb 5</option>
                 </select>
               </div>
+
+              {!isAuthenticated && (
+                <button
+                  onClick={openAuthModal}
+                  className="text-xs font-bold text-gold-400 hover:underline flex items-center gap-1"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Sign in first</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -450,51 +468,54 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                 <p className="text-[11px] text-gold-400/80 mt-0.5">Click "Raise Hand" above to take your turn reciting</p>
               </div>
             ) : (
-              queue.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className={`flex items-center justify-between p-3 rounded-2xl glass-card border transition-all ${
-                    item.id === 'my-queue-id' 
-                      ? 'border-gold-500/50 bg-gold-500/10 shadow-sm shadow-gold-500/20' 
-                      : 'border-white/10 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-gold-500/20 text-gold-300 font-bold text-xs flex items-center justify-center border border-gold-500/40">
-                      {idx + 1}
+              queue.map((item, idx) => {
+                const isMe = item.id === user?.id || item.id === 'my-queue-id';
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex items-center justify-between p-3 rounded-2xl glass-card border transition-all ${
+                      isMe 
+                        ? 'border-gold-500/50 bg-gold-500/10 shadow-sm shadow-gold-500/20' 
+                        : 'border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-full bg-gold-500/20 text-gold-300 font-bold text-xs flex items-center justify-center border border-gold-500/40">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                          {item.name}
+                          {isMe && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-gold-500/30 text-gold-200 uppercase font-extrabold">You</span>
+                          )}
+                        </p>
+                        <p className="text-[10px] text-slate-400">Target: Hizb {item.hizbTarget || currentHizb} • {item.joinedAt}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                        {item.name}
-                        {item.id === 'my-queue-id' && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-gold-500/30 text-gold-200 uppercase font-extrabold">You</span>
-                        )}
-                      </p>
-                      <p className="text-[10px] text-slate-400">Target: Hizb {item.hizbTarget || currentHizb} • {item.joinedAt}</p>
-                    </div>
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-1.5">
-                    {isAdminMode && (
-                      <button
-                        onClick={() => handleCallNext(item.id)}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold"
-                      >
-                        Call Now
-                      </button>
-                    )}
-                    {item.id === 'my-queue-id' && (
-                      <button
-                        onClick={handleRaiseHand}
-                        className="px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[11px] font-bold"
-                      >
-                        Leave
-                      </button>
-                    )}
+                    {/* Actions */}
+                    <div className="flex items-center gap-1.5">
+                      {isAdminMode && (
+                        <button
+                          onClick={() => handleCallNext(item.id)}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold"
+                        >
+                          Call Now
+                        </button>
+                      )}
+                      {isMe && (
+                        <button
+                          onClick={handleRaiseHand}
+                          className="px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[11px] font-bold"
+                        >
+                          Leave
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
@@ -540,7 +561,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
           <form onSubmit={handleSendMessage} className="flex gap-2">
             <input
               type="text"
-              placeholder="Send a note (e.g. Ayah number, Tafseer)..."
+              placeholder={isAuthenticated ? "Send a note (e.g. Ayah number, Tafseer)..." : "Sign in to send notes..."}
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               className="flex-1 px-3 py-2 rounded-xl glass-input text-xs font-medium"

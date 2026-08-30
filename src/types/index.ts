@@ -1,3 +1,17 @@
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  provider: 'google' | 'facebook' | 'email' | 'guest';
+  role: 'admin' | 'ustadh' | 'reciter' | 'member';
+  title?: string;
+  hizbsRecited: number;
+  streakDays: number;
+  bookmarks: number[];
+  joinedDate: string;
+}
+
 export interface Surah {
   number: number;
   name: string;

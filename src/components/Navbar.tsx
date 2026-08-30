@@ -7,8 +7,11 @@ import {
   ShieldCheck, 
   Users, 
   Sparkles,
-  Share2
+  Share2,
+  LogIn,
+  User
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface NavbarProps {
   activeTab: 'halaqah' | 'quran' | 'tracker';
@@ -27,6 +30,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   isLive,
   onShare,
 }) => {
+  const { user, isAuthenticated, openAuthModal, openProfileDrawer } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-white/10 px-4 lg:px-8 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -90,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </nav>
 
-        {/* Right Actions: Rules, Share, Today's Goal */}
+        {/* Right Actions: Rules, Share, Account */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Today's Goal Quick Badge */}
           <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card border border-gold-500/20">
@@ -108,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass-card glass-card-hover border border-white/10 text-xs font-semibold text-slate-200 hover:border-gold-500/40"
           >
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span className="hidden sm:inline">Group Rules</span>
+            <span className="hidden sm:inline">Rules</span>
           </button>
 
           {/* Share Link */}
@@ -120,6 +125,35 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Share2 className="w-4 h-4 text-celestial-400" />
             <span className="hidden sm:inline">Invite</span>
           </button>
+
+          {/* User Account / Login Button */}
+          {isAuthenticated && user ? (
+            <button
+              onClick={openProfileDrawer}
+              className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl glass-card border border-gold-500/40 hover:border-gold-400 transition-all bg-gold-500/10"
+              title="View Profile & Stats"
+            >
+              <div className="w-6 h-6 rounded-full bg-gold-500/30 text-gold-300 font-extrabold text-[11px] flex items-center justify-center border border-gold-400">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="hidden md:inline text-xs font-bold text-slate-200 truncate max-w-[90px]">
+                {user.name.split(' ')[0]}
+              </span>
+              <span className={`hidden sm:inline text-[9px] px-1.5 py-0.5 rounded-full font-extrabold uppercase ${
+                user.role === 'ustadh' ? 'bg-gold-500/30 text-gold-200' : 'bg-celestial-500/30 text-celestial-200'
+              }`}>
+                {user.role === 'ustadh' ? 'Ustadh' : 'Reciter'}
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-midnight-950 text-xs font-extrabold shadow-gold-glow transition-all"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </div>
 
