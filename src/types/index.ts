@@ -32,11 +32,18 @@ export interface Surah {
 export interface Ayah {
   number: number;
   numberInSurah: number;
-  textArabic: string;
+  textArabic?: string;
+  text?: string;
+  translationHa?: string;
+  translationEn?: string;
   textTranslationHausa?: string;
   textTranslationEnglish?: string;
-  surahNumber: number;
-  hizbNumber: number;
+  surahNumber?: number;
+  hizbNumber?: number;
+  juz?: number;
+  hizbQuarter?: number;
+  page?: number;
+  audio?: string;
   audioUrl?: string;
 }
 
@@ -68,9 +75,13 @@ export interface ChatMessage {
 
 export interface GroupRuleItem {
   id: number;
-  titleHausa: string;
-  titleEnglish: string;
-  descriptionHausa: string;
-  descriptionEnglish: string;
-  iconName: string;
+  category?: string;
+  title?: string;
+  hausaText?: string;
+  englishText?: string;
+  titleHausa?: string;
+  titleEnglish?: string;
+  descriptionHausa?: string;
+  descriptionEnglish?: string;
+  iconName?: string;
 }

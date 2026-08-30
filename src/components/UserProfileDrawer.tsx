@@ -68,7 +68,7 @@ export const UserProfileDrawer: React.FC = () => {
                 {user.role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter'}
               </span>
               <span className="px-2 py-0.5 rounded-full glass-card border border-white/10 text-[10px] text-slate-300 font-semibold">
-                via {user.provider.toUpperCase()}
+                via {(user.provider || 'email').toUpperCase()}
               </span>
             </div>
           </div>
