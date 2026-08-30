@@ -23,7 +23,7 @@ interface AuthContextType {
 
 const STORAGE_KEY = 'tilawa_daily_user_session';
 const USERS_DB_KEY = 'tilawa_registered_accounts_db';
-export const ADMIN_SECURITY_PIN = '7860'; // Official Tilawa Daily Admin / Ustadh Passcode
+export const ADMIN_SECURITY_PIN = '7860';
 
 interface StoredAccount {
   id: string;
@@ -37,22 +37,6 @@ interface StoredAccount {
   bookmarks: number[];
   joinedDate: string;
 }
-
-// Initial registered admins/ustadhs
-const INITIAL_ACCOUNTS: StoredAccount[] = [
-  {
-    id: 'usr_admin_1',
-    name: 'Ustadh Mansur Al-Hassan',
-    email: 'mansur@tilawadaily.com',
-    passwordHash: 'Mansur@2026',
-    role: 'ustadh',
-    title: 'Lead Qari / Moderator',
-    hizbsRecited: 42,
-    streakDays: 14,
-    bookmarks: [1, 2, 36, 67],
-    joinedDate: 'Lead Moderator'
-  }
-];
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -72,14 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
-
-  // Initialize secure local accounts database if not present
-  useEffect(() => {
-    const existing = localStorage.getItem(USERS_DB_KEY);
-    if (!existing) {
-      localStorage.setItem(USERS_DB_KEY, JSON.stringify(INITIAL_ACCOUNTS));
-    }
-  }, []);
 
   // Sync Supabase Auth session if active
   useEffect(() => {
@@ -158,9 +134,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getRegisteredAccounts = (): StoredAccount[] => {
     try {
       const raw = localStorage.getItem(USERS_DB_KEY);
-      return raw ? JSON.parse(raw) : INITIAL_ACCOUNTS;
+      return raw ? JSON.parse(raw) : [];
     } catch (e) {
-      return INITIAL_ACCOUNTS;
+      return [];
     }
   };
 
@@ -187,12 +163,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
       } catch (err) {
-        console.warn('OAuth redirect notice', err);
+        console.warn('OAuth notice', err);
       }
     }
 
     const names = provider === 'google' ? 'Google Member' : 'Facebook Member';
-    const email = provider === 'google' ? 'google.user@tilawadaily.com' : 'facebook.user@tilawadaily.com';
+    const email = provider === 'google' ? 'member@gmail.com' : 'member@facebook.com';
     
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
@@ -215,7 +191,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthError(null);
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Basic validation
     if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       setAuthError('Please enter a valid email address.');
       return false;
@@ -226,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    // 2. If Supabase is connected, check real cloud credentials first
+    // Check Supabase first if configured
     if (isSupabaseConfigured && supabase) {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -252,8 +227,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           closeAuthModal();
           return true;
         } else if (error) {
-          // If Supabase returned an explicit authentication error, reject!
-          setAuthError(error.message || 'Invalid email or password. Please try again or create an account.');
+          setAuthError(error.message || 'Invalid login credentials. Please check your email and password.');
           return false;
         }
       } catch (err: any) {
@@ -261,12 +235,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 3. Check registered database
+    // Check registered accounts database
     const accounts = getRegisteredAccounts();
     const found = accounts.find(a => a.email.toLowerCase() === cleanEmail);
 
     if (!found) {
-      setAuthError('No account found with this email. Please switch to "Create Account" tab to register first.');
+      setAuthError('No account found with this email. Please switch to "Create New Account" tab to register.');
       return false;
     }
 
@@ -275,7 +249,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    // Verified successfully!
     const verifiedUser: UserProfile = {
       id: found.id,
       name: found.name,
@@ -306,9 +279,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cleanEmail = email.trim().toLowerCase();
     const cleanName = name.trim();
 
-    // 1. Validation
     if (!cleanName || cleanName.length < 2) {
-      setAuthError('Please enter your full name (minimum 2 characters).');
+      setAuthError('Please enter your full name.');
       return false;
     }
 
@@ -318,19 +290,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!pass || pass.length < 6) {
-      setAuthError('Password must be at least 6 characters for security.');
+      setAuthError('Password must be at least 6 characters.');
       return false;
     }
 
-    // 2. Admin PIN security check for Ustadh role
     if (role === 'ustadh') {
       if (!adminPin || adminPin.trim() !== ADMIN_SECURITY_PIN) {
-        setAuthError(`Invalid Admin Security PIN. The default Ustadh PIN is ${ADMIN_SECURITY_PIN}.`);
+        setAuthError(`Invalid Admin Security PIN.`);
         return false;
       }
     }
 
-    // 3. Check if account already exists
     const accounts = getRegisteredAccounts();
     const existing = accounts.find(a => a.email.toLowerCase() === cleanEmail);
     if (existing) {
@@ -338,10 +308,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    // 4. If Supabase is connected, create in cloud database
     if (isSupabaseConfigured && supabase) {
       try {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email: cleanEmail,
           password: pass,
           options: {
@@ -360,7 +329,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 5. Store in local secure accounts database
     const newAccount: StoredAccount = {
       id: `usr_${Date.now()}`,
       name: cleanName,
@@ -406,12 +374,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     closeProfileDrawer();
   };
 
-  // Secure Role Updater with PIN requirement for Ustadh
   const updateUserRole = (newRole: 'admin' | 'ustadh' | 'reciter' | 'member', adminPin?: string): boolean => {
     if (!user) return false;
     if (newRole === 'ustadh' || newRole === 'admin') {
       if (adminPin !== ADMIN_SECURITY_PIN) {
-        alert(`Security Error: Invalid Admin PIN. Enter ${ADMIN_SECURITY_PIN} to unlock Ustadh mode.`);
+        alert(`Security Error: Invalid Admin PIN.`);
         return false;
       }
     }

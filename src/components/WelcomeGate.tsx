@@ -7,7 +7,6 @@ import {
   Radio, 
   BookOpen, 
   CheckCircle2, 
-  ShieldCheck, 
   AlertCircle,
   KeyRound
 } from 'lucide-react';
@@ -68,7 +67,7 @@ export const WelcomeGate: React.FC = () => {
         <p className="text-xs text-slate-300 mt-2 max-w-md">
           {authMode === 'login' 
             ? 'Enter your registered email & password to access the Halaqah.'
-            : 'Create your secure account to join our daily Quran recitation circle.'}
+            : 'Create your account to join our daily Quran recitation circle.'}
         </p>
 
         {/* Feature Pills */}
@@ -160,7 +159,7 @@ export const WelcomeGate: React.FC = () => {
               authMode === 'login' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40 shadow-sm' : 'text-slate-400'
             }`}
           >
-            Sign In to Existing Account
+            Sign In
           </button>
           <button
             type="button"
@@ -187,7 +186,7 @@ export const WelcomeGate: React.FC = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Hafiz Mansur"
+                  placeholder="Your full name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-2xl glass-input text-xs font-medium"
@@ -267,14 +266,11 @@ export const WelcomeGate: React.FC = () => {
                   <input
                     type="password"
                     required
-                    placeholder="Enter 4-digit Ustadh PIN (Default: 7860)"
+                    placeholder="Enter Ustadh PIN"
                     value={adminPin}
                     onChange={(e) => setAdminPin(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl glass-input text-xs font-medium border-gold-500/40"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    *Ustadh role requires the Tilawa Daily admin security PIN to prevent unauthorized moderation.
-                  </p>
                 </div>
               )}
             </div>
@@ -289,16 +285,6 @@ export const WelcomeGate: React.FC = () => {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        {/* Demo Credentials Helper Box */}
-        <div className="w-full mt-6 pt-4 border-t border-white/10 text-left p-3 rounded-2xl glass-card border border-white/5 text-[11px] text-slate-400">
-          <div className="flex items-center gap-1.5 font-bold text-gold-300 mb-1">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Official Moderator Demo Account:</span>
-          </div>
-          <p>Email: <span className="font-mono text-slate-200">mansur@tilawadaily.com</span></p>
-          <p>Password: <span className="font-mono text-slate-200">Mansur@2026</span></p>
-        </div>
 
       </div>
     </div>
