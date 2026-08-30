@@ -5,11 +5,8 @@ import {
   BookOpen, 
   CheckCircle2, 
   ShieldCheck, 
-  Users, 
-  Sparkles,
-  Share2,
-  LogIn,
-  User
+  Share2, 
+  LogIn
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,121 +23,108 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   openRules,
-  listenerCount,
-  isLive,
   onShare,
 }) => {
   const { user, isAuthenticated, openAuthModal, openProfileDrawer } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-panel border-b border-white/10 px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-40 w-full backdrop-blur-2xl bg-midnight-950/80 border-b border-white/10 px-4 sm:px-6 lg:px-8 py-2.5 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand Logo & Name */}
-        <div className="flex items-center gap-6">
-          <Logo size={42} showText={true} />
-          
-          {/* Live Indicator Pill */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full glass-card border border-emerald-500/30">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isLive ? 'bg-emerald-400' : 'bg-amber-400'} opacity-75`}></span>
-              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isLive ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-            </span>
-            <span className="text-xs font-semibold tracking-wide text-slate-200">
-              {isLive ? 'HALAQAH LIVE' : 'SESSION READY'}
-            </span>
-            <div className="h-3 w-px bg-white/20" />
-            <div className="flex items-center gap-1 text-xs text-slate-300 font-medium">
-              <Users className="w-3.5 h-3.5 text-gold-400" />
-              <span>{listenerCount}</span>
+        
+        {/* Left: Brand Identity */}
+        <div className="flex items-center gap-3">
+          <Logo size={36} showText={false} />
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-sm sm:text-base font-extrabold tracking-tight text-white">
+                Tilawa Daily
+              </span>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
             </div>
+            <span className="text-[10px] font-arabic text-gold-400 font-bold -mt-0.5 hidden sm:inline">
+              تلاوة يومية • 5 أحزاب
+            </span>
           </div>
         </div>
 
-        {/* Central Navigation Tabs (Glassmorphism Pill) */}
-        <nav className="hidden md:flex items-center p-1 rounded-2xl glass-card border border-white/10">
+        {/* Center: Clean Segmented Navigation Tabs */}
+        <nav className="hidden md:flex items-center p-1 rounded-2xl bg-midnight-900/90 border border-white/10 shadow-inner">
           <button
             onClick={() => setActiveTab('halaqah')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 ${
               activeTab === 'halaqah'
-                ? 'bg-gradient-to-r from-gold-500/20 to-gold-400/10 text-gold-200 border border-gold-500/40 shadow-sm shadow-gold-500/20'
+                ? 'bg-gradient-to-r from-gold-500 to-amber-600 text-midnight-950 shadow-gold-glow'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
-            <Radio className="w-4 h-4 text-gold-400" />
+            <Radio className={`w-3.5 h-3.5 ${activeTab === 'halaqah' ? 'text-midnight-950' : 'text-gold-400'}`} />
             <span>Live Halaqah</span>
           </button>
 
           <button
             onClick={() => setActiveTab('quran')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 ${
               activeTab === 'quran'
-                ? 'bg-gradient-to-r from-gold-500/20 to-gold-400/10 text-gold-200 border border-gold-500/40 shadow-sm shadow-gold-500/20'
+                ? 'bg-gradient-to-r from-gold-500 to-amber-600 text-midnight-950 shadow-gold-glow'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
-            <BookOpen className="w-4 h-4 text-gold-400" />
-            <span>Al-Qur'an Mushaf</span>
+            <BookOpen className={`w-3.5 h-3.5 ${activeTab === 'quran' ? 'text-midnight-950' : 'text-gold-400'}`} />
+            <span>Mushaf Quran</span>
           </button>
 
           <button
             onClick={() => setActiveTab('tracker')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
+            className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 ${
               activeTab === 'tracker'
-                ? 'bg-gradient-to-r from-gold-500/20 to-gold-400/10 text-gold-200 border border-gold-500/40 shadow-sm shadow-gold-500/20'
+                ? 'bg-gradient-to-r from-gold-500 to-amber-600 text-midnight-950 shadow-gold-glow'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
             }`}
           >
-            <CheckCircle2 className="w-4 h-4 text-gold-400" />
+            <CheckCircle2 className={`w-3.5 h-3.5 ${activeTab === 'tracker' ? 'text-midnight-950' : 'text-gold-400'}`} />
             <span>5-Hizb Schedule</span>
           </button>
         </nav>
 
-        {/* Right Actions: Rules, Share, Account */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Today's Goal Quick Badge */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl glass-card border border-gold-500/20">
-            <Sparkles className="w-3.5 h-3.5 text-gold-400 animate-pulse-slow" />
-            <div className="text-left">
-              <p className="text-[10px] uppercase font-bold text-slate-400 leading-none">Today's Reading</p>
-              <p className="text-xs font-bold text-gold-300 leading-tight">Hizb 1 to 5</p>
-            </div>
-          </div>
-
-          {/* Group Rules Button */}
+        {/* Right: Actions & User Account */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          
+          {/* Rules Quick Icon Button */}
           <button
             onClick={openRules}
-            title="Dokokin Group / Group Rules"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass-card glass-card-hover border border-white/10 text-xs font-semibold text-slate-200 hover:border-gold-500/40"
+            title="Dokokin Group / Rules"
+            className="p-2 rounded-xl glass-card border border-white/10 text-slate-300 hover:text-gold-300 hover:border-gold-500/40 transition-all"
           >
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span className="hidden sm:inline">Rules</span>
+            <ShieldCheck className="w-4 h-4 text-gold-400" />
           </button>
 
-          {/* Share Link */}
+          {/* Share Invitation Button */}
           <button
             onClick={onShare}
-            title="Share Recitation Link"
-            className="p-2 sm:px-3 sm:py-2 rounded-xl glass-card glass-card-hover border border-white/10 text-xs font-semibold text-slate-200 hover:border-gold-500/40 flex items-center gap-1.5"
+            title="Invite Group Members"
+            className="p-2 rounded-xl glass-card border border-white/10 text-slate-300 hover:text-celestial-300 hover:border-celestial-500/40 transition-all"
           >
             <Share2 className="w-4 h-4 text-celestial-400" />
-            <span className="hidden sm:inline">Invite</span>
           </button>
 
-          {/* User Account / Login Button */}
+          {/* User Account / Profile */}
           {isAuthenticated && user ? (
             <button
               onClick={openProfileDrawer}
-              className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl glass-card border border-gold-500/40 hover:border-gold-400 transition-all bg-gold-500/10"
-              title="View Profile & Stats"
+              className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-xl glass-card border border-gold-500/30 hover:border-gold-400 transition-all bg-gold-500/10"
+              title="Account & Stats"
             >
-              <div className="w-6 h-6 rounded-full bg-gold-500/30 text-gold-300 font-extrabold text-[11px] flex items-center justify-center border border-gold-400">
+              <div className="w-6 h-6 rounded-full bg-gold-500 text-midnight-950 font-extrabold text-[11px] flex items-center justify-center shadow-sm">
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <span className="hidden md:inline text-xs font-bold text-slate-200 truncate max-w-[90px]">
+              <span className="text-xs font-bold text-slate-200 truncate max-w-[85px]">
                 {user.name.split(' ')[0]}
               </span>
-              <span className={`hidden sm:inline text-[9px] px-1.5 py-0.5 rounded-full font-extrabold uppercase ${
-                user.role === 'ustadh' ? 'bg-gold-500/30 text-gold-200' : 'bg-celestial-500/30 text-celestial-200'
+              <span className={`text-[9px] px-1.5 py-0.2 rounded font-extrabold uppercase ${
+                user.role === 'ustadh' ? 'bg-gold-500/30 text-gold-200' : 'bg-slate-700/60 text-slate-300'
               }`}>
                 {user.role === 'ustadh' ? 'Ustadh' : 'Reciter'}
               </span>
@@ -148,42 +132,43 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               onClick={openAuthModal}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-midnight-950 text-xs font-extrabold shadow-gold-glow transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold-500 hover:bg-gold-400 text-midnight-950 text-xs font-extrabold shadow-gold-glow transition-all"
             >
-              <LogIn className="w-4 h-4" />
+              <LogIn className="w-3.5 h-3.5" />
               <span>Sign In</span>
             </button>
           )}
+
         </div>
       </div>
 
-      {/* Mobile Sub-Navigation Bar */}
-      <div className="flex md:hidden items-center justify-around mt-2 pt-2 border-t border-white/5 gap-1">
+      {/* Mobile Streamlined Segmented Bar */}
+      <div className="flex md:hidden items-center p-0.5 rounded-xl bg-midnight-900/90 border border-white/10 mt-2">
         <button
           onClick={() => setActiveTab('halaqah')}
-          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 ${
-            activeTab === 'halaqah' ? 'bg-gold-500/20 text-gold-300 border border-gold-500/30' : 'text-slate-400'
+          className={`flex-1 py-1 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all ${
+            activeTab === 'halaqah' ? 'bg-gold-500 text-midnight-950 font-extrabold shadow-sm' : 'text-slate-400'
           }`}
         >
-          <Radio className="w-3.5 h-3.5" />
-          <span>Live Call</span>
+          <Radio className="w-3 h-3" />
+          <span>Halaqah</span>
         </button>
         <button
           onClick={() => setActiveTab('quran')}
-          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 ${
-            activeTab === 'quran' ? 'bg-gold-500/20 text-gold-300 border border-gold-500/30' : 'text-slate-400'
+          className={`flex-1 py-1 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all ${
+            activeTab === 'quran' ? 'bg-gold-500 text-midnight-950 font-extrabold shadow-sm' : 'text-slate-400'
           }`}
         >
-          <BookOpen className="w-3.5 h-3.5" />
+          <BookOpen className="w-3 h-3" />
           <span>Mushaf</span>
         </button>
         <button
           onClick={() => setActiveTab('tracker')}
-          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 ${
-            activeTab === 'tracker' ? 'bg-gold-500/20 text-gold-300 border border-gold-500/30' : 'text-slate-400'
+          className={`flex-1 py-1 rounded-lg text-xs font-bold flex items-center justify-center gap-1 transition-all ${
+            activeTab === 'tracker' ? 'bg-gold-500 text-midnight-950 font-extrabold shadow-sm' : 'text-slate-400'
           }`}
         >
-          <CheckCircle2 className="w-3.5 h-3.5" />
+          <CheckCircle2 className="w-3 h-3" />
           <span>5-Hizb</span>
         </button>
       </div>

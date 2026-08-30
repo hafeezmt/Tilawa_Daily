@@ -7,7 +7,6 @@ import {
   VolumeX, 
   Shield, 
   Clock, 
-  ChevronRight, 
   Sparkles, 
   Radio, 
   UserCheck, 
@@ -18,8 +17,7 @@ import {
   CheckCircle,
   AlertCircle,
   LogIn,
-  Users,
-  Wifi
+  Users
 } from 'lucide-react';
 import { QueueMember, ChatMessage, UserProfile } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -35,7 +33,6 @@ interface LiveHalaqahRoomProps {
 export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
   currentHizb,
   onNavigateToHizb,
-  listenerCount,
 }) => {
   const { user, isAuthenticated, openAuthModal, incrementHizbCount } = useAuth();
 
@@ -55,7 +52,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
-  // Reciter & Queue States (Starts clean, dynamic real-time)
+  // Reciter & Queue States
   const [activeReciter, setActiveReciter] = useState<{
     name: string;
     title: string;
@@ -122,7 +119,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     }
   }, [user]);
 
-  // Timer for active recitation when someone speaks
+  // Timer for active recitation
   useEffect(() => {
     if (!isMuted || activeReciter.duration > 0) {
       const timer = setInterval(() => {
@@ -138,7 +135,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Toggle Live Microphone with Web Audio API & WebRTC stream
+  // Toggle Live Microphone
   const handleToggleMic = async () => {
     if (isMuted) {
       try {
@@ -159,7 +156,6 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
         setIsRealMicActive(true);
         setIsMuted(false);
 
-        // Update active reciter spotlight to current user
         if (user) {
           const myReciter = {
             name: user.name,
@@ -186,7 +182,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
         };
         updateBars();
       } catch (err) {
-        console.warn('Microphone access notice:', err);
+        console.warn('Microphone notice:', err);
         setIsMuted(false);
       }
     } else {
@@ -206,7 +202,6 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     }
   };
 
-  // Handle Raise Hand
   const handleRaiseHand = () => {
     if (!isAuthenticated) {
       openAuthModal();
@@ -232,7 +227,6 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     }
   };
 
-  // Admin: Call Next Reciter
   const handleCallNext = (queueId: string) => {
     const member = queue.find(q => q.id === queueId);
     if (member) {
@@ -301,46 +295,18 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
   return (
     <div className="w-full flex flex-col gap-6">
       
-      {/* Top Halaqah Connectivity Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl glass-card border border-white/10 text-xs">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsParticipantsModalOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gold-500/20 text-gold-300 font-bold border border-gold-500/40 hover:bg-gold-500/30 transition-all"
-            title="View online members"
-          >
-            <Users className="w-4 h-4 text-gold-400" />
-            <span>{Math.max(1, participants.length)} Member{participants.length !== 1 ? 's' : ''} in Room</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-
-          <span className="flex items-center gap-1.5 text-slate-300 font-medium hidden sm:flex">
-            <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Live WebRTC Audio Ready</span>
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onNavigateToHizb(activeReciter.hizb)}
-            className="px-3 py-1.5 rounded-xl glass-card border border-gold-500/30 text-gold-300 font-bold flex items-center gap-1.5 hover:bg-gold-500/10"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-gold-400" />
-            <span>Hizb {activeReciter.hizb} in Mushaf</span>
-          </button>
-        </div>
-      </div>
-
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Main Reciter Spotlight Card */}
+        {/* Main Reciter Spotlight Card (7 Columns) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           
           <div className="relative rounded-3xl glass-panel p-5 sm:p-8 overflow-hidden border border-white/15 shadow-glass-lg">
             
+            {/* Top Ambient Glow */}
             <div className="absolute -top-24 -left-24 w-72 h-72 bg-gold-500/20 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-celestial-500/15 rounded-full blur-3xl pointer-events-none" />
 
+            {/* Header Row: Room Status, Duration, Online Counter */}
             <div className="relative flex items-center justify-between gap-4 mb-6 sm:mb-8">
               <div className="flex items-center gap-3">
                 <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide border ${
@@ -357,12 +323,28 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                 </span>
               </div>
 
-              <span className="text-xs px-2.5 py-1 rounded-xl glass-card text-gold-300 font-bold border border-gold-500/30">
-                Hizb {activeReciter.hizb}
-              </span>
+              {/* Online Participants Trigger & Mushaf Shortcut */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsParticipantsModalOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl glass-card text-gold-300 font-bold text-xs border border-white/10 hover:border-gold-500/40"
+                  title="View online members"
+                >
+                  <Users className="w-3.5 h-3.5 text-gold-400" />
+                  <span>{Math.max(1, participants.length)} Online</span>
+                </button>
+
+                <button
+                  onClick={() => onNavigateToHizb(activeReciter.hizb)}
+                  className="text-xs px-2.5 py-1 rounded-xl glass-card text-gold-300 font-bold border border-gold-500/30 hover:bg-gold-500/10 flex items-center gap-1"
+                >
+                  <Sparkles className="w-3 h-3 text-gold-400" />
+                  <span>Hizb {activeReciter.hizb}</span>
+                </button>
+              </div>
             </div>
 
-            {/* Reciter Avatar & Visualizer */}
+            {/* Reciter Avatar & Live Waveform */}
             <div className="relative flex flex-col items-center justify-center my-2 sm:my-4">
               <div className="relative flex items-center justify-center w-36 h-36 sm:w-44 sm:h-44 rounded-full">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-gold-500/30 via-celestial-500/20 to-gold-400/30 animate-spin-slow blur-md" />
@@ -510,7 +492,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
           )}
         </div>
 
-        {/* Recitation Queue & Chat */}
+        {/* Recitation Queue & Chat (5 Columns) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           
           {/* Recitation Queue Card */}
