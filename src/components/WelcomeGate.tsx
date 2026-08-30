@@ -343,15 +343,6 @@ export const WelcomeGate: React.FC = () => {
           </>
         )}
 
-        {/* Ustadh / Admin Quick Login Hint */}
-        <div className="w-full mt-6 pt-4 border-t border-white/10 text-left p-3 rounded-2xl glass-card border border-white/5 text-[11px] text-slate-400 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 font-bold text-gold-300">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Admin Credentials:</span>
-          </div>
-          <span className="font-mono text-slate-300">admin@tilawadaily.com / admin123</span>
-        </div>
-
       </div>
     </div>
   );
