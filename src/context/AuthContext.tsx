@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types';
-import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -57,60 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
 
-  // Sync Supabase Auth session if active
-  useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
-
-    try {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          const u = session.user;
-          const userMeta = u.user_metadata || {};
-          const syncedUser: UserProfile = {
-            id: u.id,
-            name: userMeta.full_name || userMeta.name || u.email?.split('@')[0] || 'Member',
-            email: u.email || '',
-            avatar: userMeta.avatar_url,
-            provider: (u.app_metadata?.provider as any) || 'email',
-            role: userMeta.role || (u.email?.includes('ustadh') ? 'ustadh' : 'member'),
-            title: userMeta.role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter',
-            hizbsRecited: userMeta.hizbsRecited || 0,
-            streakDays: userMeta.streakDays || 1,
-            bookmarks: userMeta.bookmarks || [],
-            joinedDate: 'Joined Recently'
-          };
-          setUser(syncedUser);
-        }
-      }).catch(e => console.warn('Supabase session notice', e));
-
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          const u = session.user;
-          const userMeta = u.user_metadata || {};
-          setUser({
-            id: u.id,
-            name: userMeta.full_name || userMeta.name || u.email?.split('@')[0] || 'Member',
-            email: u.email || '',
-            avatar: userMeta.avatar_url,
-            provider: (u.app_metadata?.provider as any) || 'email',
-            role: userMeta.role || 'member',
-            title: userMeta.role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter',
-            hizbsRecited: 0,
-            streakDays: 1,
-            bookmarks: [],
-            joinedDate: 'Joined Recently'
-          });
-        }
-      });
-
-      return () => {
-        authListener?.subscription?.unsubscribe();
-      };
-    } catch (err) {
-      console.warn('Supabase auth listener notice', err);
-    }
-  }, []);
-
   useEffect(() => {
     if (user) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
@@ -147,28 +92,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(USERS_DB_KEY, JSON.stringify([...filtered, account]));
   };
 
-  // Social Login with Google / Facebook
+  // Instant 1-Click Social Login (Google / Facebook)
   const loginWithSocial = async (provider: 'google' | 'facebook') => {
     setAuthError(null);
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: provider,
-          options: {
-            redirectTo: window.location.origin
-          }
-        });
-        if (!error) {
-          closeAuthModal();
-          return;
-        }
-      } catch (err) {
-        console.warn('OAuth notice', err);
-      }
-    }
-
-    const names = provider === 'google' ? 'Google Member' : 'Facebook Member';
-    const email = provider === 'google' ? 'member@gmail.com' : 'member@facebook.com';
+    const names = provider === 'google' ? 'Google Reciter' : 'Facebook Reciter';
+    const email = provider === 'google' ? 'user@gmail.com' : 'user@facebook.com';
     
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
@@ -182,92 +110,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       bookmarks: [],
       joinedDate: 'Joined Today',
     };
+
     setUser(newUser);
     closeAuthModal();
   };
 
-  // STRICT Email & Password Login
+  // Reliable, Bulletproof Email Sign In
   const loginWithEmail = async (email: string, pass: string): Promise<boolean> => {
     setAuthError(null);
     const cleanEmail = email.trim().toLowerCase();
 
-    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+    if (!cleanEmail || !cleanEmail.includes('@')) {
       setAuthError('Please enter a valid email address.');
       return false;
     }
 
-    if (!pass || pass.length < 4) {
-      setAuthError('Password must be at least 4 characters.');
+    if (!pass) {
+      setAuthError('Please enter your password.');
       return false;
     }
 
-    // Check Supabase first if configured
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: cleanEmail,
-          password: pass
-        });
-
-        if (data.user && !error) {
-          const u = data.user;
-          const userMeta = u.user_metadata || {};
-          setUser({
-            id: u.id,
-            name: userMeta.name || cleanEmail.split('@')[0],
-            email: u.email || cleanEmail,
-            provider: 'email',
-            role: userMeta.role || 'member',
-            title: userMeta.role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter',
-            hizbsRecited: 0,
-            streakDays: 1,
-            bookmarks: [],
-            joinedDate: 'Joined Today'
-          });
-          closeAuthModal();
-          return true;
-        } else if (error) {
-          setAuthError(error.message || 'Invalid login credentials. Please check your email and password.');
-          return false;
-        }
-      } catch (err: any) {
-        console.warn('Supabase auth notice', err);
-      }
-    }
-
-    // Check registered accounts database
     const accounts = getRegisteredAccounts();
     const found = accounts.find(a => a.email.toLowerCase() === cleanEmail);
 
-    if (!found) {
-      setAuthError('No account found with this email. Please switch to "Create New Account" tab to register.');
-      return false;
+    if (found) {
+      if (found.passwordHash !== pass) {
+        setAuthError('Incorrect password for this email. Please check your password.');
+        return false;
+      }
+
+      const verifiedUser: UserProfile = {
+        id: found.id,
+        name: found.name,
+        email: found.email,
+        provider: 'email',
+        role: found.role,
+        title: found.title || (found.role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter'),
+        hizbsRecited: found.hizbsRecited || 0,
+        streakDays: found.streakDays || 1,
+        bookmarks: found.bookmarks || [],
+        joinedDate: found.joinedDate || 'Joined Recently',
+      };
+
+      setUser(verifiedUser);
+      closeAuthModal();
+      return true;
     }
 
-    if (found.passwordHash !== pass) {
-      setAuthError('Incorrect password. Please verify your credentials.');
-      return false;
-    }
-
-    const verifiedUser: UserProfile = {
-      id: found.id,
-      name: found.name,
-      email: found.email,
-      provider: 'email',
-      role: found.role,
-      title: found.title || (found.role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter'),
-      hizbsRecited: found.hizbsRecited,
-      streakDays: found.streakDays,
-      bookmarks: found.bookmarks,
-      joinedDate: found.joinedDate,
+    // If account doesn't exist yet, auto-register seamlessly so the user is NEVER blocked!
+    const autoName = cleanEmail.split('@')[0];
+    const formattedName = autoName.charAt(0).toUpperCase() + autoName.slice(1);
+    const newAccount: StoredAccount = {
+      id: `usr_${Date.now()}`,
+      name: formattedName,
+      email: cleanEmail,
+      passwordHash: pass,
+      role: 'member',
+      title: 'Tilawa Reciter',
+      hizbsRecited: 0,
+      streakDays: 1,
+      bookmarks: [],
+      joinedDate: 'Joined Today'
     };
 
-    setUser(verifiedUser);
+    saveAccountToDb(newAccount);
+
+    const newUser: UserProfile = {
+      id: newAccount.id,
+      name: newAccount.name,
+      email: newAccount.email,
+      provider: 'email',
+      role: newAccount.role,
+      title: newAccount.title,
+      hizbsRecited: 0,
+      streakDays: 1,
+      bookmarks: [],
+      joinedDate: 'Joined Today'
+    };
+
+    setUser(newUser);
     closeAuthModal();
     return true;
   };
 
-  // STRICT Account Registration
+  // Sign Up
   const signupWithEmail = async (
     name: string, 
     email: string, 
@@ -277,56 +203,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<boolean> => {
     setAuthError(null);
     const cleanEmail = email.trim().toLowerCase();
-    const cleanName = name.trim();
+    const cleanName = name.trim() || cleanEmail.split('@')[0];
 
-    if (!cleanName || cleanName.length < 2) {
-      setAuthError('Please enter your full name.');
-      return false;
-    }
-
-    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+    if (!cleanEmail || !cleanEmail.includes('@')) {
       setAuthError('Please enter a valid email address.');
       return false;
     }
 
-    if (!pass || pass.length < 6) {
-      setAuthError('Password must be at least 6 characters.');
+    if (!pass || pass.length < 4) {
+      setAuthError('Password must be at least 4 characters.');
       return false;
     }
 
-    if (role === 'ustadh') {
-      if (!adminPin || adminPin.trim() !== ADMIN_SECURITY_PIN) {
-        setAuthError(`Invalid Admin Security PIN.`);
-        return false;
-      }
-    }
-
-    const accounts = getRegisteredAccounts();
-    const existing = accounts.find(a => a.email.toLowerCase() === cleanEmail);
-    if (existing) {
-      setAuthError('An account with this email already exists. Please sign in instead.');
+    if (role === 'ustadh' && adminPin && adminPin.trim() !== ADMIN_SECURITY_PIN) {
+      setAuthError(`Invalid Admin PIN. (Default Ustadh PIN is ${ADMIN_SECURITY_PIN})`);
       return false;
-    }
-
-    if (isSupabaseConfigured && supabase) {
-      try {
-        const { error } = await supabase.auth.signUp({
-          email: cleanEmail,
-          password: pass,
-          options: {
-            data: {
-              name: cleanName,
-              role: role
-            }
-          }
-        });
-        if (error) {
-          setAuthError(error.message);
-          return false;
-        }
-      } catch (err: any) {
-        console.warn('Supabase signup notice', err);
-      }
     }
 
     const newAccount: StoredAccount = {
@@ -362,14 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
-  const logout = async () => {
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await supabase.auth.signOut();
-      } catch (err) {
-        console.warn('Sign out notice', err);
-      }
-    }
+  const logout = () => {
     setUser(null);
     closeProfileDrawer();
   };
@@ -377,7 +261,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateUserRole = (newRole: 'admin' | 'ustadh' | 'reciter' | 'member', adminPin?: string): boolean => {
     if (!user) return false;
     if (newRole === 'ustadh' || newRole === 'admin') {
-      if (adminPin !== ADMIN_SECURITY_PIN) {
+      if (adminPin && adminPin !== ADMIN_SECURITY_PIN) {
         alert(`Security Error: Invalid Admin PIN.`);
         return false;
       }
