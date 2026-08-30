@@ -75,10 +75,10 @@ export interface ChatMessage {
 
 export interface GroupRuleItem {
   id: number;
-  category?: string;
+  category: string;
   title?: string;
-  hausaText?: string;
-  englishText?: string;
+  hausaText: string;
+  englishText: string;
   titleHausa?: string;
   titleEnglish?: string;
   descriptionHausa?: string;
