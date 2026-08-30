@@ -4,21 +4,22 @@ import {
   Mail, 
   Lock, 
   User, 
-  ShieldCheck, 
   ArrowRight,
-  Sparkles,
-  CheckCircle2
+  AlertCircle,
+  KeyRound,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from './Logo';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, closeAuthModal, loginWithSocial, loginWithEmail, signupWithEmail } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, loginWithSocial, loginWithEmail, signupWithEmail, authError, setAuthError } = useAuth();
   
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [adminPin, setAdminPin] = useState('');
   const [selectedRole, setSelectedRole] = useState<'member' | 'ustadh'>('member');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,12 +33,13 @@ export const AuthModal: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
     setIsLoading(true);
+    setAuthError(null);
+
     if (authMode === 'login') {
       await loginWithEmail(email, password);
     } else {
-      await signupWithEmail(name || email.split('@')[0], email, password, selectedRole);
+      await signupWithEmail(name, email, password, selectedRole, adminPin);
     }
     setIsLoading(false);
   };
@@ -63,21 +65,28 @@ export const AuthModal: React.FC = () => {
         </button>
 
         {/* Brand Header */}
-        <div className="flex flex-col items-center text-center mb-6">
+        <div className="flex flex-col items-center text-center mb-5">
           <Logo size={48} />
           <h3 className="text-xl font-extrabold text-white mt-3">
-            {authMode === 'login' ? 'Welcome to Tilawa Daily' : 'Join Tilawa Daily Halaqah'}
+            {authMode === 'login' ? 'Sign In to Tilawa Daily' : 'Join Tilawa Daily Halaqah'}
           </h3>
           <p className="text-xs text-slate-300 mt-1">
             {authMode === 'login' 
-              ? 'Sign in to sync your 5-Hizb recitation & join the queue' 
+              ? 'Enter your registered credentials to sign in' 
               : 'Create your account to participate in daily Quran circles'}
           </p>
         </div>
 
+        {/* Error Alert */}
+        {authError && (
+          <div className="p-3 mb-4 rounded-2xl bg-rose-950/40 border border-rose-500/50 text-rose-200 text-xs font-semibold flex items-center gap-2.5 text-left animate-shake">
+            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <span>{authError}</span>
+          </div>
+        )}
+
         {/* Social Authentication Buttons */}
-        <div className="flex flex-col gap-2.5 mb-5">
-          {/* Continue with Google */}
+        <div className="flex flex-col gap-2.5 mb-4">
           <button
             type="button"
             onClick={() => handleSocialClick('google')}
@@ -106,7 +115,6 @@ export const AuthModal: React.FC = () => {
             <span>Continue with Google</span>
           </button>
 
-          {/* Continue with Facebook */}
           <button
             type="button"
             onClick={() => handleSocialClick('facebook')}
@@ -179,32 +187,51 @@ export const AuthModal: React.FC = () => {
           </div>
 
           {authMode === 'signup' && (
-            <div>
-              <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Account Role</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('member')}
-                  className={`p-2 rounded-xl text-xs font-bold border transition-all ${
-                    selectedRole === 'member'
-                      ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
-                      : 'glass-card border-white/10 text-slate-400'
-                  }`}
-                >
-                  Member / Reciter
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('ustadh')}
-                  className={`p-2 rounded-xl text-xs font-bold border transition-all ${
-                    selectedRole === 'ustadh'
-                      ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
-                      : 'glass-card border-white/10 text-slate-400'
-                  }`}
-                >
-                  Ustadh / Moderator
-                </button>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Account Role</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('member')}
+                    className={`p-2 rounded-xl text-xs font-bold border transition-all ${
+                      selectedRole === 'member'
+                        ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
+                        : 'glass-card border-white/10 text-slate-400'
+                    }`}
+                  >
+                    Member / Reciter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('ustadh')}
+                    className={`p-2 rounded-xl text-xs font-bold border transition-all ${
+                      selectedRole === 'ustadh'
+                        ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
+                        : 'glass-card border-white/10 text-slate-400'
+                    }`}
+                  >
+                    Ustadh / Moderator
+                  </button>
+                </div>
               </div>
+
+              {selectedRole === 'ustadh' && (
+                <div className="p-3 rounded-2xl bg-gold-950/30 border border-gold-500/30">
+                  <label className="block text-[11px] font-bold uppercase text-gold-300 mb-1 flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-gold-400" />
+                    <span>Admin Security PIN</span>
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter Ustadh PIN (Default: 7860)"
+                    value={adminPin}
+                    onChange={(e) => setAdminPin(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl glass-input text-xs font-medium border-gold-500/40"
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -213,7 +240,7 @@ export const AuthModal: React.FC = () => {
             disabled={isLoading}
             className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-midnight-950 font-extrabold text-xs shadow-gold-glow flex items-center justify-center gap-2 transition-all mt-2"
           >
-            <span>{authMode === 'login' ? 'Sign In' : 'Create Account'}</span>
+            <span>{isLoading ? 'Verifying...' : authMode === 'login' ? 'Sign In' : 'Create Account'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -224,10 +251,13 @@ export const AuthModal: React.FC = () => {
             {authMode === 'login' ? "Don't have an account yet?" : "Already have an account?"}{' '}
             <button
               type="button"
-              onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+              onClick={() => {
+                setAuthMode(authMode === 'login' ? 'signup' : 'login');
+                setAuthError(null);
+              }}
               className="text-gold-300 font-bold hover:underline"
             >
-              {authMode === 'login' ? 'Sign Up' : 'Sign In'}
+              {authMode === 'login' ? 'Create Account' : 'Sign In'}
             </button>
           </p>
         </div>

@@ -8,19 +8,20 @@ import {
   BookOpen, 
   CheckCircle2, 
   ShieldCheck, 
-  Sparkles
+  AlertCircle,
+  KeyRound
 } from 'lucide-react';
 import { Logo } from './Logo';
 import { useAuth } from '../context/AuthContext';
 
 export const WelcomeGate: React.FC = () => {
-  const { loginWithSocial, loginWithEmail, signupWithEmail } = useAuth();
+  const { loginWithSocial, loginWithEmail, signupWithEmail, authError, setAuthError } = useAuth();
   
-  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'guest'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [guestName, setGuestName] = useState('');
+  const [adminPin, setAdminPin] = useState('');
   const [selectedRole, setSelectedRole] = useState<'member' | 'ustadh'>('member');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,13 +34,12 @@ export const WelcomeGate: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    if (authMode === 'guest') {
-      const gName = guestName.trim() || 'Dan Uwa / Reciter';
-      await signupWithEmail(gName, `${gName.toLowerCase().replace(/\s+/g, '')}@tilawadaily.com`, 'guest123', selectedRole);
-    } else if (authMode === 'login') {
+    setAuthError(null);
+
+    if (authMode === 'login') {
       await loginWithEmail(email, password);
     } else {
-      await signupWithEmail(name || email.split('@')[0], email, password, selectedRole);
+      await signupWithEmail(name, email, password, selectedRole, adminPin);
     }
     setIsLoading(false);
   };
@@ -55,18 +55,20 @@ export const WelcomeGate: React.FC = () => {
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-celestial-500/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* Brand Header */}
-        <div className="relative mb-6">
-          <Logo size={74} />
+        <div className="relative mb-5">
+          <Logo size={72} />
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-amber-200">Tilawa Daily</span>
         </h1>
-        <p className="text-sm font-arabic text-gold-300 font-bold mt-1">
+        <p className="text-sm font-arabic text-gold-300 font-bold mt-0.5">
           تلاوة يومية • 5 أحزاب
         </p>
         <p className="text-xs text-slate-300 mt-2 max-w-md">
-          Sign in to enter our daily Quran recitation circle, join the live voice Halaqah, and track your daily 5 Hizbs.
+          {authMode === 'login' 
+            ? 'Enter your registered email & password to access the Halaqah.'
+            : 'Create your secure account to join our daily Quran recitation circle.'}
         </p>
 
         {/* Feature Pills */}
@@ -84,6 +86,14 @@ export const WelcomeGate: React.FC = () => {
             <span className="text-[10px] font-bold text-slate-200 uppercase">5-Hizb Tracker</span>
           </div>
         </div>
+
+        {/* Security Error Alert */}
+        {authError && (
+          <div className="w-full p-3 mb-4 rounded-2xl bg-rose-950/40 border border-rose-500/50 text-rose-200 text-xs font-semibold flex items-center gap-2.5 text-left animate-shake">
+            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <span>{authError}</span>
+          </div>
+        )}
 
         {/* Social Authentication Buttons */}
         <div className="w-full flex flex-col gap-2.5 mb-4">
@@ -133,62 +143,42 @@ export const WelcomeGate: React.FC = () => {
         <div className="w-full flex items-center gap-3 my-2">
           <div className="flex-1 h-px bg-white/10" />
           <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-            {authMode === 'guest' ? 'or fast name entry' : 'or with email'}
+            or with email & password
           </span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        {/* Tabs: Login / Sign Up / Quick Name */}
+        {/* Tabs: Sign In / Create Account */}
         <div className="w-full flex items-center p-1 rounded-2xl glass-card border border-white/10 mb-4 text-xs font-bold">
           <button
             type="button"
-            onClick={() => setAuthMode('login')}
-            className={`flex-1 py-1.5 rounded-xl transition-all ${
-              authMode === 'login' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40' : 'text-slate-400'
+            onClick={() => {
+              setAuthMode('login');
+              setAuthError(null);
+            }}
+            className={`flex-1 py-2 rounded-xl transition-all ${
+              authMode === 'login' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40 shadow-sm' : 'text-slate-400'
             }`}
           >
-            Sign In
+            Sign In to Existing Account
           </button>
           <button
             type="button"
-            onClick={() => setAuthMode('signup')}
-            className={`flex-1 py-1.5 rounded-xl transition-all ${
-              authMode === 'signup' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40' : 'text-slate-400'
+            onClick={() => {
+              setAuthMode('signup');
+              setAuthError(null);
+            }}
+            className={`flex-1 py-2 rounded-xl transition-all ${
+              authMode === 'signup' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40 shadow-sm' : 'text-slate-400'
             }`}
           >
-            Create Account
-          </button>
-          <button
-            type="button"
-            onClick={() => setAuthMode('guest')}
-            className={`flex-1 py-1.5 rounded-xl transition-all ${
-              authMode === 'guest' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40' : 'text-slate-400'
-            }`}
-          >
-            Fast Name Entry
+            Create New Account
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="w-full space-y-3 text-left">
+        <form onSubmit={handleSubmit} className="w-full space-y-3.5 text-left">
           
-          {authMode === 'guest' && (
-            <div>
-              <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Your Full Name / Nickname</label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Hafiz Ahmad"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl glass-input text-xs font-medium"
-                />
-              </div>
-            </div>
-          )}
-
           {authMode === 'signup' && (
             <div>
               <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Full Name</label>
@@ -206,81 +196,109 @@ export const WelcomeGate: React.FC = () => {
             </div>
           )}
 
-          {authMode !== 'guest' && (
-            <>
+          <div>
+            <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="email"
+                required
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl glass-input text-xs font-medium"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">
+              Password {authMode === 'signup' && <span className="text-slate-500 text-[10px] lowercase">(min 6 characters)</span>}
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl glass-input text-xs font-medium"
+              />
+            </div>
+          </div>
+
+          {authMode === 'signup' && (
+            <div className="space-y-3 pt-1">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="email"
-                    required
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl glass-input text-xs font-medium"
-                  />
+                <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Account Role</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('member')}
+                    className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
+                      selectedRole === 'member'
+                        ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
+                        : 'glass-card border-white/10 text-slate-400'
+                    }`}
+                  >
+                    Member / Reciter
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRole('ustadh')}
+                    className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
+                      selectedRole === 'ustadh'
+                        ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
+                        : 'glass-card border-white/10 text-slate-400'
+                    }`}
+                  >
+                    Ustadh / Moderator
+                  </button>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              {selectedRole === 'ustadh' && (
+                <div className="p-3 rounded-2xl bg-gold-950/30 border border-gold-500/30">
+                  <label className="block text-[11px] font-bold uppercase text-gold-300 mb-1 flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-gold-400" />
+                    <span>Admin Security PIN</span>
+                  </label>
                   <input
                     type="password"
                     required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl glass-input text-xs font-medium"
+                    placeholder="Enter 4-digit Ustadh PIN (Default: 7860)"
+                    value={adminPin}
+                    onChange={(e) => setAdminPin(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl glass-input text-xs font-medium border-gold-500/40"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    *Ustadh role requires the Tilawa Daily admin security PIN to prevent unauthorized moderation.
+                  </p>
                 </div>
-              </div>
-            </>
-          )}
-
-          {(authMode === 'signup' || authMode === 'guest') && (
-            <div>
-              <label className="block text-[11px] font-bold uppercase text-slate-400 mb-1">Select Role</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('member')}
-                  className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedRole === 'member'
-                      ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
-                      : 'glass-card border-white/10 text-slate-400'
-                  }`}
-                >
-                  Member / Reciter
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedRole('ustadh')}
-                  className={`p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedRole === 'ustadh'
-                      ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
-                      : 'glass-card border-white/10 text-slate-400'
-                  }`}
-                >
-                  Ustadh / Moderator
-                </button>
-              </div>
+              )}
             </div>
           )}
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 rounded-2xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-midnight-950 font-extrabold text-xs shadow-gold-glow flex items-center justify-center gap-2 transition-all mt-3"
+            className="w-full py-3 rounded-2xl bg-gradient-to-r from-gold-500 to-amber-600 hover:from-gold-400 hover:to-amber-500 text-midnight-950 font-extrabold text-xs shadow-gold-glow flex items-center justify-center gap-2 transition-all mt-4"
           >
-            <span>
-              {authMode === 'login' ? 'Sign In & Enter Halaqah' : authMode === 'guest' ? 'Enter Halaqah as Reciter' : 'Create Account & Enter'}
-            </span>
+            <span>{isLoading ? 'Verifying...' : authMode === 'login' ? 'Sign In' : 'Create Account & Enter'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
+
+        {/* Demo Credentials Helper Box */}
+        <div className="w-full mt-6 pt-4 border-t border-white/10 text-left p-3 rounded-2xl glass-card border border-white/5 text-[11px] text-slate-400">
+          <div className="flex items-center gap-1.5 font-bold text-gold-300 mb-1">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Official Moderator Demo Account:</span>
+          </div>
+          <p>Email: <span className="font-mono text-slate-200">mansur@tilawadaily.com</span></p>
+          <p>Password: <span className="font-mono text-slate-200">Mansur@2026</span></p>
+        </div>
 
       </div>
     </div>
