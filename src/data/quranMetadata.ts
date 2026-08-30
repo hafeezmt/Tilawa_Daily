@@ -182,6 +182,7 @@ export const HIZB_LIST: HizbInfo[] = Array.from({ length: 60 }, (_, i) => {
     startSurah: mapping.surah,
     startAyah: mapping.ayah,
     surahName: mapping.name,
+    surahArabic: mapping.arabic,
     status: 'pending',
     assignedReciter: undefined
   };
