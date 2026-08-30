@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Logo } from './Logo';
 import { 
   Radio, 
@@ -6,9 +6,11 @@ import {
   CheckCircle2, 
   ShieldCheck, 
   Share2, 
-  LogIn
+  LogIn,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { AdminApprovalModal } from './AdminApprovalModal';
 
 interface NavbarProps {
   activeTab: 'halaqah' | 'quran' | 'tracker';
@@ -25,7 +27,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   openRules,
   onShare,
 }) => {
-  const { user, isAuthenticated, openAuthModal, openProfileDrawer } = useAuth();
+  const { user, isAuthenticated, openAuthModal, openProfileDrawer, pendingMembers } = useAuth();
+  const [isAdminApprovalModalOpen, setIsAdminApprovalModalOpen] = useState(false);
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'ustadh';
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-2xl bg-midnight-950/80 border-b border-white/10 px-4 sm:px-6 lg:px-8 py-2.5 transition-all">
@@ -92,7 +97,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right: Actions & User Account */}
         <div className="flex items-center gap-2 sm:gap-2.5">
           
-          {/* Rules Quick Icon Button */}
+          {/* Admin Member Approvals Button */}
+          {isAdmin && (
+            <button
+              onClick={() => setIsAdminApprovalModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gold-500/20 text-gold-300 border border-gold-500/40 text-xs font-bold hover:bg-gold-500/30 transition-all"
+              title="Review Member Applications"
+            >
+              <UserCheck className="w-3.5 h-3.5 text-gold-400" />
+              <span className="hidden sm:inline">Approvals</span>
+              {pendingMembers.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-midnight-950 text-[10px] font-extrabold animate-pulse">
+                  {pendingMembers.length}
+                </span>
+              )}
+            </button>
+          )}
+
+          {/* Rules Button */}
           <button
             onClick={openRules}
             title="Dokokin Group / Rules"
@@ -124,9 +146,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {user.name.split(' ')[0]}
               </span>
               <span className={`text-[9px] px-1.5 py-0.2 rounded font-extrabold uppercase ${
-                user.role === 'ustadh' ? 'bg-gold-500/30 text-gold-200' : 'bg-slate-700/60 text-slate-300'
+                user.role === 'ustadh' || user.role === 'admin' ? 'bg-gold-500/30 text-gold-200' : 'bg-slate-700/60 text-slate-300'
               }`}>
-                {user.role === 'ustadh' ? 'Ustadh' : 'Reciter'}
+                {user.role === 'admin' ? 'Admin' : user.role === 'ustadh' ? 'Ustadh' : 'Reciter'}
               </span>
             </button>
           ) : (
@@ -172,6 +194,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span>5-Hizb</span>
         </button>
       </div>
+
+      {/* Admin Approval Management Modal */}
+      <AdminApprovalModal
+        isOpen={isAdminApprovalModalOpen}
+        onClose={() => setIsAdminApprovalModalOpen(false)}
+      />
     </header>
   );
 };

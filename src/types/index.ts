@@ -1,10 +1,16 @@
+export type UserRole = 'admin' | 'ustadh' | 'reciter' | 'member';
+export type MemberStatus = 'pending' | 'approved' | 'rejected';
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  location?: string;
   avatar?: string;
-  provider: 'google' | 'facebook' | 'email' | 'guest';
-  role: 'admin' | 'ustadh' | 'reciter' | 'member';
+  provider?: 'google' | 'facebook' | 'email';
+  role: UserRole;
+  status: MemberStatus;
   title?: string;
   hizbsRecited: number;
   streakDays: number;
@@ -26,13 +32,12 @@ export interface Surah {
 export interface Ayah {
   number: number;
   numberInSurah: number;
-  text: string;
-  translationEn?: string;
-  translationHa?: string;
-  juz: number;
-  hizbQuarter: number;
-  page: number;
-  audio?: string;
+  textArabic: string;
+  textTranslationHausa?: string;
+  textTranslationEnglish?: string;
+  surahNumber: number;
+  hizbNumber: number;
+  audioUrl?: string;
 }
 
 export interface HizbInfo {
@@ -42,8 +47,8 @@ export interface HizbInfo {
   startAyah: number;
   surahName: string;
   surahArabic: string;
-  assignedReciter?: string;
   status: 'pending' | 'in_progress' | 'completed';
+  assignedReciter?: string;
 }
 
 export interface QueueMember {
@@ -51,28 +56,21 @@ export interface QueueMember {
   name: string;
   hizbTarget?: number;
   joinedAt: string;
-  isUstadh?: boolean;
-}
-
-export interface ReciterProfile {
-  id: string;
-  name: string;
-  arabicName: string;
-  subfolder: string;
 }
 
 export interface ChatMessage {
   id: string;
   sender: string;
-  role: 'member' | 'admin' | 'reciter' | 'system';
+  role: 'admin' | 'reciter' | 'member';
   text: string;
   timestamp: string;
 }
 
 export interface GroupRuleItem {
   id: number;
+  titleHausa: string;
+  titleEnglish: string;
+  descriptionHausa: string;
+  descriptionEnglish: string;
   iconName: string;
-  hausaText: string;
-  englishText: string;
-  category: 'decorum' | 'safety' | 'worship' | 'admin';
 }
