@@ -38,6 +38,7 @@ export const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
         isMuted: true,
         isSpeaking: false,
         isHandRaised: false,
+        isAdmitted: true,
       }
     ] : []
   );

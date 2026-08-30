@@ -3,6 +3,10 @@ import {
   Search, 
   Play, 
   Pause, 
+  Square,
+  SkipBack,
+  SkipForward,
+  Volume2,
   Languages, 
   Bookmark, 
   Sparkles,
@@ -107,10 +111,38 @@ export const QuranReader: React.FC<QuranReaderProps> = ({
         setIsPlayingAudio(false);
       } else {
         audioRef.current.src = ayah.audio || `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.number}.mp3`;
-        audioRef.current.play();
+        audioRef.current.play().catch(e => console.warn('Audio play notice', e));
         setCurrentPlayingAyah(ayah.number);
         setIsPlayingAudio(true);
       }
+    }
+  };
+
+  const handleStopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsPlayingAudio(false);
+    setCurrentPlayingAyah(null);
+  };
+
+  const handleNextAyah = () => {
+    if (!currentPlayingAyah) {
+      if (ayahs.length > 0) handlePlayAyah(ayahs[0]);
+      return;
+    }
+    const currentIndex = ayahs.findIndex(a => a.number === currentPlayingAyah);
+    if (currentIndex !== -1 && currentIndex < ayahs.length - 1) {
+      handlePlayAyah(ayahs[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevAyah = () => {
+    if (!currentPlayingAyah) return;
+    const currentIndex = ayahs.findIndex(a => a.number === currentPlayingAyah);
+    if (currentIndex > 0) {
+      handlePlayAyah(ayahs[currentIndex - 1]);
     }
   };
 
@@ -121,7 +153,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({
       const nextAyah = ayahs[currentIndex + 1];
       if (audioRef.current && nextAyah.audio) {
         audioRef.current.src = nextAyah.audio;
-        audioRef.current.play();
+        audioRef.current.play().catch(e => console.warn('Next audio notice', e));
         setCurrentPlayingAyah(nextAyah.number);
       }
     } else {
@@ -506,6 +538,75 @@ export const QuranReader: React.FC<QuranReaderProps> = ({
           </div>
         )}
       </div>
+
+      {/* FLOATING STICKY QURAN AUDIO CONTROLLER BAR */}
+      {(isPlayingAudio || currentPlayingAyah !== null) && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-xl p-3.5 sm:p-4 rounded-3xl glass-panel border border-gold-500/50 shadow-glass-lg backdrop-blur-2xl flex items-center justify-between gap-3 animate-fadeIn bg-midnight-950/90">
+          
+          {/* Left: Current Ayah Info */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gold-500/20 text-gold-300 border border-gold-500/40 flex items-center justify-center flex-shrink-0">
+              <Volume2 className="w-5 h-5 animate-pulse" />
+            </div>
+            <div className="text-left">
+              <p className="text-xs font-extrabold text-white">
+                {currentSurah?.englishName} • Ayah {currentPlayingAyah}
+              </p>
+              <p className="text-[10px] text-gold-400/90 font-medium">
+                Mishary Rashid Alafasy Recitation
+              </p>
+            </div>
+          </div>
+
+          {/* Center/Right: Audio Playback Actions */}
+          <div className="flex items-center gap-2">
+            {/* Prev Ayah */}
+            <button
+              onClick={handlePrevAyah}
+              className="p-2 rounded-xl glass-card border border-white/10 text-slate-300 hover:text-white hover:border-gold-500/40 transition-colors"
+              title="Previous Ayah"
+            >
+              <SkipBack className="w-4 h-4" />
+            </button>
+
+            {/* Play / Pause Toggle */}
+            <button
+              onClick={() => {
+                if (currentPlayingAyah) {
+                  const curr = ayahs.find(a => a.number === currentPlayingAyah);
+                  if (curr) handlePlayAyah(curr);
+                } else if (ayahs.length > 0) {
+                  handlePlayAyah(ayahs[0]);
+                }
+              }}
+              className="p-2.5 rounded-2xl bg-gold-500 hover:bg-gold-400 text-midnight-950 font-extrabold shadow-gold-glow transition-all"
+              title={isPlayingAudio ? 'Pause' : 'Play'}
+            >
+              {isPlayingAudio ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            </button>
+
+            {/* Next Ayah */}
+            <button
+              onClick={handleNextAyah}
+              className="p-2 rounded-xl glass-card border border-white/10 text-slate-300 hover:text-white hover:border-gold-500/40 transition-colors"
+              title="Next Ayah"
+            >
+              <SkipForward className="w-4 h-4" />
+            </button>
+
+            {/* Prominent Red STOP Button */}
+            <button
+              onClick={handleStopAudio}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/50 text-xs font-bold transition-all shadow-sm"
+              title="Stop Recitation Audio"
+            >
+              <Square className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+              <span>Stop</span>
+            </button>
+          </div>
+
+        </div>
+      )}
 
     </div>
   );
