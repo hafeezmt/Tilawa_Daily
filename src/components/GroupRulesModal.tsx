@@ -24,7 +24,7 @@ export const GroupRulesModal: React.FC<GroupRulesModalProps> = ({ isOpen, onClos
 
   if (!isOpen) return null;
 
-  const getRuleIcon = (iconName: string) => {
+  const getRuleIcon = (iconName?: string) => {
     switch (iconName) {
       case 'UserX': return <UserX className="w-5 h-5 text-rose-400" />;
       case 'HeartHandshake': return <HeartHandshake className="w-5 h-5 text-gold-400" />;
