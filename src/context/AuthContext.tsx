@@ -20,23 +20,10 @@ interface AuthContextType {
 
 const STORAGE_KEY = 'tilawa_daily_user_session';
 
-const DEFAULT_GUEST: UserProfile = {
-  id: 'guest-1',
-  name: 'Hafiz Mansur',
-  email: 'mansur@tilawadaily.com',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-  provider: 'google',
-  role: 'ustadh',
-  title: 'Lead Qari / Moderator',
-  hizbsRecited: 18,
-  streakDays: 6,
-  bookmarks: [1, 2, 36, 67],
-  joinedDate: 'Joined Aug 2026',
-};
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Start with no pre-loaded demo user: only load if user actually logged in
   const [user, setUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -46,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error parsing stored user', e);
       }
     }
-    return DEFAULT_GUEST; // Pre-loaded with demo user so everything is immediately active
+    return null;
   });
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -67,9 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Social Login (Google / Facebook)
   const loginWithSocial = async (provider: 'google' | 'facebook') => {
-    // Simulated instant OAuth authentication
-    const names = provider === 'google' ? 'Ahmad Abubakar' : 'Ibrahim Dan\'iya';
-    const email = provider === 'google' ? 'ahmad.abubakar@gmail.com' : 'ibrahim.d@facebook.com';
+    // Generate member profile based on selected provider
+    const names = provider === 'google' ? 'Google Member' : 'Facebook Member';
+    const email = provider === 'google' ? 'user@gmail.com' : 'user@facebook.com';
     
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
@@ -77,10 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: email,
       provider: provider,
       role: 'member',
-      title: 'Tilawa Member',
-      hizbsRecited: 4,
-      streakDays: 3,
-      bookmarks: [1, 255],
+      title: 'Tilawa Reciter',
+      hizbsRecited: 0,
+      streakDays: 1,
+      bookmarks: [],
       joinedDate: 'Joined Today',
     };
 
@@ -102,9 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       provider: 'email',
       role: isAdmin ? 'ustadh' : 'member',
       title: isAdmin ? 'Ustadh / Moderator' : 'Tilawa Reciter',
-      hizbsRecited: 8,
-      streakDays: 4,
-      bookmarks: [1],
+      hizbsRecited: 0,
+      streakDays: 1,
+      bookmarks: [],
       joinedDate: 'Joined Today',
     };
 
@@ -116,11 +103,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signupWithEmail = async (name: string, email: string, _pass: string, role: 'member' | 'ustadh' = 'member') => {
     const newUser: UserProfile = {
       id: `usr_${Date.now()}`,
-      name: name.trim(),
+      name: name.trim() || email.split('@')[0],
       email: email.trim(),
       provider: 'email',
       role: role,
-      title: role === 'ustadh' ? 'Ustadh / Qari' : 'Tilawa Member',
+      title: role === 'ustadh' ? 'Ustadh / Moderator' : 'Tilawa Reciter',
       hizbsRecited: 0,
       streakDays: 1,
       bookmarks: [],
