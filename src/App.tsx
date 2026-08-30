@@ -7,11 +7,14 @@ import { DailyTracker } from './components/DailyTracker';
 import { GroupRulesModal } from './components/GroupRulesModal';
 import { AuthModal } from './components/AuthModal';
 import { UserProfileDrawer } from './components/UserProfileDrawer';
+import { WelcomeGate } from './components/WelcomeGate';
 import { Logo } from './components/Logo';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { Sparkles } from 'lucide-react';
 
 function AppContent() {
+  const { isAuthenticated } = useAuth();
+
   // Active Navigation Tab
   const [activeTab, setActiveTab] = useState<'halaqah' | 'quran' | 'tracker'>('halaqah');
   
@@ -42,6 +45,17 @@ function AppContent() {
     setTimeout(() => setShowShareToast(false), 3500);
   };
 
+  // If user is not yet signed in, show the Welcome & Login Gate Page First!
+  if (!isAuthenticated) {
+    return (
+      <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden">
+        <BackgroundGlows />
+        <WelcomeGate />
+      </div>
+    );
+  }
+
+  // Once signed in, show full Halaqah & Quran Platform Dashboard
   return (
     <div className="relative min-h-screen flex flex-col justify-between overflow-x-hidden">
       {/* Dynamic Ambient Background Glows */}
