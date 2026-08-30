@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="discGrad" cx="50%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#1E325A" />
+      <stop offset="50%" stop-color="#0E1A33" />
+      <stop offset="100%" stop-color="#060C18" />
+    </radialGradient>
+
+    <!-- Gold Accent Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE8B3" />
+      <stop offset="45%" stop-color="#E5B25D" />
+      <stop offset="80%" stop-color="#C6923B" />
+      <stop offset="100%" stop-color="#996E20" />
+    </linearGradient>
+
+    <!-- Celestial Ring Gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#E5B25D" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <!-- Specular Glow -->
+    <radialGradient id="specularGlow" cx="50%" cy="15%" r="45%">
+      <stop offset="0%" stop-color="rgba(229, 178, 93, 0.25)" />
+      <stop offset="100%" stop-color="rgba(229, 178, 93, 0)" />
+    </radialGradient>
+    
+    <!-- Outer Glow Filter -->
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Outer Ambient Glow Ring -->
+  <circle cx="200" cy="200" r="192" fill="none" stroke="url(#ringGrad)" stroke-width="2" opacity="0.4" />
+  
+  <!-- Outer Main Sharp Ring -->
+  <circle cx="200" cy="200" r="186" fill="url(#discGrad)" stroke="url(#goldGrad)" stroke-width="5" />
+
+  <!-- Inner Concentric Precision Ring -->
+  <circle cx="200" cy="200" r="172" fill="none" stroke="url(#goldGrad)" stroke-width="2" stroke-dasharray="8 4" opacity="0.75" />
+  <circle cx="200" cy="200" r="162" fill="none" stroke="rgba(255, 255, 255, 0.25)" stroke-width="1.5" />
+
+  <!-- Specular Reflection Overlay -->
+  <circle cx="200" cy="200" r="184" fill="url(#specularGlow)" />
+
+  <!-- Book Icon Enclosure Circle -->
+  <circle cx="200" cy="140" r="54" fill="rgba(14, 26, 51, 0.7)" stroke="url(#goldGrad)" stroke-width="3" />
+  <circle cx="200" cy="140" r="48" fill="none" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1" />
+
+  <!-- Open Quran Vector Icon -->
+  <g transform="translate(200, 140) scale(1.15)">
+    <!-- Book Pages Spine Center Marker -->
+    <path d="M 0,-22 L 0,16" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Ribbon Bookmark -->
+    <path d="M 0,16 L -3,24 L 0,22 L 3,24 Z" fill="url(#goldGrad)" />
+    
+    <!-- Left Page Outline -->
+    <path d="M 0,-18 C -14,-22 -26,-18 -32,-16 C -34,-15 -35,-13 -35,-10 L -35,14 C -35,16 -34,17 -32,16 C -24,14 -12,18 0,20 Z" 
+          fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" />
+    <!-- Left Page Inner Lines -->
+    <path d="M -8,-10 C -16,-12 -24,-9 -27,-8" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+    <path d="M -8,-2 C -16,-4 -24,-1 -27,0" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+    <path d="M -8,6 C -16,4 -24,7 -27,8" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+
+    <!-- Right Page Outline -->
+    <path d="M 0,-18 C 14,-22 26,-18 32,-16 C 34,-15 35,-13 35,-10 L 35,14 C 35,16 34,17 32,16 C 24,14 12,18 0,20 Z" 
+          fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" />
+    <!-- Right Page Inner Lines -->
+    <path d="M 8,-10 C 16,-12 24,-9 27,-8" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+    <path d="M 8,-2 C 16,-4 24,-1 27,0" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+    <path d="M 8,6 C 16,4 24,7 27,8" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round" opacity="0.9" />
+  </g>
+
+  <!-- Typography: Tilawa_Daily (Latin) -->
+  <text x="200" y="248" 
+        text-anchor="middle" 
+        font-family="'Plus Jakarta Sans', system-ui, sans-serif" 
+        font-size="34" 
+        font-weight="800" 
+        letter-spacing="0.5" 
+        fill="#FFFFFF">
+    Tilawa_Daily
+  </text>
+
+  <!-- Divider Ribbon Accent -->
+  <line x1="120" y1="268" x2="280" y2="268" stroke="url(#goldGrad)" stroke-width="1.8" stroke-linecap="round" opacity="0.8" />
+  <circle cx="200" cy="268" r="3" fill="url(#goldGrad)" />
+
+  <!-- Typography: تلاوة يومية (Arabic) -->
+  <text x="200" y="324" 
+        text-anchor="middle" 
+        font-family="'Amiri', 'Scheherazade New', serif" 
+        font-size="40" 
+        font-weight="700" 
+        fill="url(#goldGrad)">
+    تِلَاوَةٌ يَوْمِيَّة
+  </text>
+</svg>
