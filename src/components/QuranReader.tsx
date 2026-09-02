@@ -16,6 +16,7 @@ import {
   ListFilter
 } from 'lucide-react';
 import { SURAHS_LIST, HIZB_LIST } from '../data/quranMetadata';
+import { RECITERS_LIST } from '../data/reciters';
 import { Ayah } from '../types';
 
 interface QuranReaderProps {
@@ -43,7 +44,7 @@ export const QuranReader: React.FC<QuranReaderProps> = ({
   // Audio Playback States
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [currentPlayingAyah, setCurrentPlayingAyah] = useState<number | null>(null);
-  const [selectedReciter] = useState('ar.alafasy');
+  const [selectedReciter, setSelectedReciter] = useState('ar.alafasy');
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Bookmarks
@@ -250,6 +251,22 @@ export const QuranReader: React.FC<QuranReaderProps> = ({
         {/* Row 2: Display Preferences */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
           
+          {/* Reciter Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-700 hidden sm:inline">Qari / Reciter:</span>
+            <select
+              value={selectedReciter}
+              onChange={(e) => setSelectedReciter(e.target.value)}
+              className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-amber-800 cursor-pointer"
+            >
+              {RECITERS_LIST.map(r => (
+                <option key={r.id} value={r.id}>
+                  {r.name} ({r.style})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Font Size Slider */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-slate-700">Arabic Size:</span>
