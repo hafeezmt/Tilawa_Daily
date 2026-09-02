@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { GROUP_RULES } from '../data/groupRules';
 import { GroupRuleItem } from '../types';
+import { Logo } from './Logo';
 
 interface GroupRulesModalProps {
   isOpen: boolean;
