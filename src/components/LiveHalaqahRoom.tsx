@@ -5,16 +5,11 @@ import {
   Hand, 
   Volume2, 
   VolumeX, 
-  Shield, 
   Clock, 
   Radio, 
-  UserCheck, 
-  UserX,
   MessageSquare,
   Send,
-  Sliders,
   CheckCircle,
-  AlertCircle,
   Users,
   Copy,
   Check,
@@ -24,7 +19,7 @@ import {
   LayoutGrid,
   Maximize2
 } from 'lucide-react';
-import { QueueMember, ChatMessage, UserProfile } from '../types';
+import { QueueMember, ChatMessage } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { voiceRoomService, RoomParticipant, KnockRequest, DEFAULT_ROOM_CODE } from '../services/voiceRoomService';
 
@@ -38,7 +33,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
   currentHizb,
   onNavigateToHizb,
 }) => {
-  const { user, isAuthenticated, incrementHizbCount } = useAuth();
+  const { user, incrementHizbCount } = useAuth();
 
   // View Mode: Google Meet Grid vs Spotlight Stage
   const [viewMode, setViewMode] = useState<'grid' | 'spotlight'>('grid');
@@ -91,7 +86,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
 
   const isHost = user?.role === 'admin' || user?.role === 'ustadh';
 
-  // Initialize Real-time WebRTC Voice Room with Knocking / Google Meet flow
+  // Initialize Real-time WebRTC Voice Room
   useEffect(() => {
     if (!user) return;
 
@@ -241,7 +236,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     }
   };
 
-  // Ustadh Action: Stop Active Recitation (Remotely stops reciter turn)
+  // Ustadh Action: Stop Active Recitation
   const handleStopActiveReciter = () => {
     voiceRoomService.stopRecitation();
     setActiveReciter(prev => ({
@@ -342,7 +337,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
     }, 100);
   };
 
-  // Active call participants (Include self if not yet registered in list)
+  // Active call participants
   const displayParticipants: RoomParticipant[] = participants.length > 0 ? participants : (
     user ? [{
       peerId: 'self',
@@ -359,15 +354,15 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
       
       {/* GOOGLE MEET WAITING ROOM PROMPT (If knocking & not admitted yet) */}
       {!isAdmitted && (
-        <div className="w-full p-8 rounded-3xl glass-panel border border-amber-500/40 bg-midnight-950/90 text-center animate-fadeIn my-4">
-          <div className="w-14 h-14 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center mx-auto mb-3 border border-amber-500/40">
+        <div className="w-full p-8 rounded-3xl bg-white border border-amber-300 text-center animate-fadeIn my-4 shadow-sm">
+          <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto mb-3 border border-amber-300">
             <Clock className="w-8 h-8 animate-pulse" />
           </div>
-          <h3 className="text-xl font-extrabold text-white">Asking to Join Halaqah...</h3>
-          <p className="text-sm text-slate-300 mt-2">
-            Meeting Code: <span className="font-mono text-gold-300 font-bold">{roomCode}</span>
+          <h3 className="text-xl font-extrabold text-slate-900">Asking to Join Halaqah...</h3>
+          <p className="text-sm text-slate-700 mt-2">
+            Meeting Code: <span className="font-mono text-amber-800 font-bold">{roomCode}</span>
           </p>
-          <p className="text-xs text-amber-300 font-medium mt-1">
+          <p className="text-xs text-amber-800 font-medium mt-1">
             An Ustadh / Host has been notified to let you into the live room.
           </p>
         </div>
@@ -375,28 +370,28 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
 
       {/* INCOMING KNOCK REQUESTS ALERT (Floating for Ustadh / Host) */}
       {isHost && incomingKnocks.length > 0 && (
-        <div className="fixed top-20 right-4 sm:right-8 z-50 w-[95%] max-w-sm p-4 rounded-3xl glass-panel border border-gold-400 shadow-gold-glow animate-bounce bg-midnight-950/95">
-          <div className="flex items-center gap-2 text-gold-300 text-xs font-bold mb-2">
-            <Users className="w-4 h-4 text-gold-400" />
+        <div className="fixed top-20 right-4 sm:right-8 z-50 w-[95%] max-w-sm p-4 rounded-3xl bg-white border border-amber-400 shadow-lg animate-bounce">
+          <div className="flex items-center gap-2 text-amber-800 text-xs font-bold mb-2">
+            <Users className="w-4 h-4 text-amber-600" />
             <span>{incomingKnocks.length} Member(s) Asking to Join:</span>
           </div>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {incomingKnocks.map(knock => (
-              <div key={knock.peerId} className="p-2.5 rounded-2xl glass-card border border-white/10 flex items-center justify-between gap-2">
+              <div key={knock.peerId} className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
                 <div>
-                  <p className="text-xs font-bold text-white">{knock.user.name}</p>
-                  <p className="text-[10px] text-slate-400">{knock.user.location || 'Nigeria'}</p>
+                  <p className="text-xs font-bold text-slate-900">{knock.user.name}</p>
+                  <p className="text-[10px] text-slate-500">{knock.user.location || 'Nigeria'}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleDeny(knock.peerId)}
-                    className="px-2.5 py-1 rounded-xl bg-rose-500/20 text-rose-300 text-[10px] font-bold"
+                    className="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold"
                   >
                     Deny
                   </button>
                   <button
                     onClick={() => handleAdmit(knock.peerId)}
-                    className="px-3 py-1 rounded-xl bg-emerald-500 text-midnight-950 text-[10px] font-extrabold shadow-sm"
+                    className="px-3 py-1 rounded-xl bg-amber-600 text-white text-[10px] font-extrabold shadow-sm"
                   >
                     Admit
                   </button>
@@ -408,17 +403,17 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
       )}
 
       {/* TOP MEETING STATUS BAR */}
-      <div className="flex items-center justify-between gap-3 p-3 rounded-2xl glass-card border border-white/10 text-xs">
+      <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-white border border-slate-200 text-xs shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-midnight-900 border border-white/10 font-mono text-gold-300 font-bold">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200 font-mono text-amber-800 font-bold">
             <span>{roomCode}</span>
-            <button onClick={handleCopyMeetingLink} title="Copy Meeting Link" className="text-slate-400 hover:text-white">
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <button onClick={handleCopyMeetingLink} title="Copy Meeting Link" className="text-slate-500 hover:text-slate-900">
+              {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
 
-          <span className="flex items-center gap-1.5 text-slate-300 font-semibold hidden sm:flex">
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+          <span className="flex items-center gap-1.5 text-slate-700 font-semibold hidden sm:flex">
+            <Radio className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
             <span>Halaqah Live Call</span>
           </span>
         </div>
@@ -427,17 +422,17 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'spotlight' : 'grid')}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-xl glass-card border border-white/10 text-slate-200 text-xs font-bold hover:border-gold-500/40"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold hover:border-amber-400"
           >
-            {viewMode === 'grid' ? <Maximize2 className="w-3.5 h-3.5 text-gold-400" /> : <LayoutGrid className="w-3.5 h-3.5 text-gold-400" />}
+            {viewMode === 'grid' ? <Maximize2 className="w-3.5 h-3.5 text-amber-600" /> : <LayoutGrid className="w-3.5 h-3.5 text-amber-600" />}
             <span>{viewMode === 'grid' ? 'Spotlight' : 'Grid View'}</span>
           </button>
 
           <button
             onClick={() => onNavigateToHizb(activeReciter.hizb)}
-            className="px-3 py-1 rounded-xl glass-card border border-gold-500/40 text-gold-300 font-bold text-xs flex items-center gap-1 hover:bg-gold-500/10"
+            className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs flex items-center gap-1 hover:bg-amber-100"
           >
-            <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>Hizb {activeReciter.hizb}</span>
           </button>
         </div>
@@ -449,9 +444,9 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
         {/* LEFT / CENTER: GOOGLE MEET PARTICIPANT GRID OR SPOTLIGHT (8 or 12 Cols) */}
         <div className={`${showSidePanel ? 'lg:col-span-8' : 'lg:col-span-12'} flex flex-col gap-4 transition-all`}>
           
-          {/* GRID VIEW: Interactive Member Video/Audio Tiles */}
+          {/* GRID VIEW: Interactive Member Video/Audio Tiles (White & Gold) */}
           {viewMode === 'grid' ? (
-            <div className={`grid gap-3.5 p-4 rounded-3xl glass-panel border border-white/15 min-h-[420px] flex-1 ${
+            <div className={`grid gap-3.5 p-4 rounded-3xl bg-white border border-slate-200 min-h-[420px] flex-1 shadow-sm ${
               displayParticipants.length <= 1 ? 'grid-cols-1' :
               displayParticipants.length <= 2 ? 'grid-cols-1 sm:grid-cols-2' :
               displayParticipants.length <= 4 ? 'grid-cols-2' :
@@ -465,22 +460,22 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                 return (
                   <div
                     key={participant.peerId || idx}
-                    className={`relative rounded-2xl glass-card border p-4 flex flex-col items-center justify-between min-h-[160px] sm:min-h-[190px] transition-all overflow-hidden ${
+                    className={`relative rounded-2xl bg-white border p-4 flex flex-col items-center justify-between min-h-[160px] sm:min-h-[190px] transition-all overflow-hidden ${
                       isSpeaking
-                        ? 'border-emerald-400 shadow-emerald-glow bg-emerald-950/20'
+                        ? 'border-amber-500 bg-amber-50/40'
                         : isReciter
-                        ? 'border-gold-400 shadow-gold-glow bg-gold-950/20'
-                        : 'border-white/10 hover:border-white/25 bg-midnight-900/80'
+                        ? 'border-amber-400 bg-amber-50/30'
+                        : 'border-slate-200 hover:border-slate-300 bg-slate-50/30'
                     }`}
                   >
                     {/* Top Status Tags */}
                     <div className="w-full flex items-center justify-between gap-1 z-10">
                       <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
                         participant.user.role === 'ustadh' || participant.user.role === 'admin'
-                          ? 'bg-gold-500/30 text-gold-300 border border-gold-500/40'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-300'
                           : isReciter
-                          ? 'bg-emerald-500/30 text-emerald-300'
-                          : 'bg-slate-800/70 text-slate-300'
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-slate-100 text-slate-700'
                       }`}>
                         {participant.user.role === 'admin' ? 'Admin' : participant.user.role === 'ustadh' ? 'Ustadh' : isReciter ? 'Reciting' : 'Member'}
                       </span>
@@ -488,29 +483,26 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                       {/* Mic Status */}
                       <span className={`p-1 rounded-lg border ${
                         participant.isMuted 
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' 
-                          : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          ? 'bg-rose-50 text-rose-600 border-rose-200' 
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       }`}>
-                        {participant.isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3 animate-pulse" />}
+                        {participant.isMuted ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3" />}
                       </span>
                     </div>
 
                     {/* Center Avatar & Speaking Halo Wave */}
                     <div className="relative my-auto flex items-center justify-center">
-                      {isSpeaking && (
-                        <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-emerald-500 to-gold-400 blur-md animate-ping opacity-60" />
-                      )}
-                      <div className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center font-extrabold text-xl sm:text-2xl shadow-lg border-2 ${
+                      <div className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center font-extrabold text-xl sm:text-2xl border-2 ${
                         isSpeaking
-                          ? 'bg-emerald-950 border-emerald-400 text-emerald-300'
-                          : 'bg-midnight-950 border-gold-500/50 text-gold-300'
+                          ? 'bg-amber-100 border-amber-600 text-amber-900'
+                          : 'bg-slate-100 border-slate-300 text-slate-800'
                       }`}>
                         {participant.user.name.charAt(0).toUpperCase()}
                       </div>
 
                       {/* Raised Hand Badge */}
                       {participant.isHandRaised && (
-                        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-gold-500 text-midnight-950 shadow-md animate-bounce" title="Hand Raised">
+                        <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-amber-600 text-white shadow-sm" title="Hand Raised">
                           <Hand className="w-3.5 h-3.5 font-bold" />
                         </span>
                       )}
@@ -518,7 +510,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
 
                     {/* Bottom Name & Ustadh Actions */}
                     <div className="w-full flex items-center justify-between gap-1 z-10 mt-2">
-                      <p className="text-xs font-bold text-white truncate max-w-[120px]">
+                      <p className="text-xs font-bold text-slate-900 truncate max-w-[120px]">
                         {participant.user.name} {isMe && '(You)'}
                       </p>
 
@@ -527,7 +519,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => voiceRoomService.remoteMute(participant.peerId)}
-                            className="p-1 rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-[10px] font-bold"
+                            className="p-1 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 text-[10px] font-bold border border-rose-200"
                             title="Remote Mute Member"
                           >
                             <MicOff className="w-3 h-3" />
@@ -541,38 +533,37 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
             </div>
           ) : (
             /* SPOTLIGHT VIEW (Focused Active Reciter) */
-            <div className="rounded-3xl glass-panel p-6 sm:p-8 border border-white/15 flex flex-col items-center justify-center text-center min-h-[420px] relative">
+            <div className="rounded-3xl bg-white p-6 sm:p-8 border border-slate-200 flex flex-col items-center justify-center text-center min-h-[420px] relative shadow-sm">
               <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center mb-4">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-gold-500/30 via-celestial-500/20 to-gold-400/30 animate-spin-slow blur-md" />
-                <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full glass-card border-2 border-gold-400/60 flex flex-col items-center justify-center bg-midnight-900">
-                  <Mic className="w-8 h-8 text-gold-300 animate-pulse mb-1" />
-                  <span className="text-[10px] uppercase font-bold text-gold-400">Spotlight</span>
+                <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-amber-50 border-2 border-amber-400 flex flex-col items-center justify-center">
+                  <Mic className="w-8 h-8 text-amber-600 mb-1" />
+                  <span className="text-[10px] uppercase font-bold text-amber-800">Spotlight</span>
                 </div>
               </div>
-              <h3 className="text-2xl font-extrabold text-white">{activeReciter.name}</h3>
-              <p className="text-sm font-arabic text-gold-300 font-bold mt-1">
+              <h3 className="text-2xl font-extrabold text-slate-900">{activeReciter.name}</h3>
+              <p className="text-sm font-arabic text-amber-700 font-bold mt-1">
                 {activeReciter.surah} • {activeReciter.ayahRange} ({formatTime(activeReciter.duration)})
               </p>
             </div>
           )}
 
-          {/* GOOGLE MEET BOTTOM FLOATING CALL CONTROL BAR */}
-          <div className="p-3 sm:p-4 rounded-3xl glass-panel border border-white/20 shadow-glass-lg flex flex-wrap items-center justify-between gap-3 bg-midnight-950/90">
+          {/* GOOGLE MEET BOTTOM CALL CONTROL BAR (White & Gold) */}
+          <div className="p-3 sm:p-4 rounded-3xl bg-white border border-slate-200 shadow-md flex flex-wrap items-center justify-between gap-3">
             
             {/* Left: Audio Status & Duration */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSpeakerMuted(!isSpeakerMuted)}
-                className={`p-2.5 rounded-2xl glass-card border ${
-                  isSpeakerMuted ? 'border-rose-500/40 text-rose-400' : 'border-white/10 text-gold-400'
+                className={`p-2.5 rounded-2xl border ${
+                  isSpeakerMuted ? 'border-rose-300 text-rose-600 bg-rose-50' : 'border-slate-200 text-slate-700 bg-white hover:border-amber-300'
                 }`}
                 title={isSpeakerMuted ? 'Unmute Speaker' : 'Mute Speaker'}
               >
-                {isSpeakerMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                {isSpeakerMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-amber-600" />}
               </button>
 
-              <div className="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                <Clock className="w-3.5 h-3.5 text-gold-400" />
+              <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                <Clock className="w-3.5 h-3.5 text-amber-600" />
                 <span>{formatTime(activeReciter.duration)}</span>
               </div>
             </div>
@@ -582,37 +573,37 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
               {/* Mic Toggle */}
               <button
                 onClick={handleToggleMic}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition-all shadow-md ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition-all shadow-sm ${
                   isMuted
-                    ? 'glass-card border border-white/20 text-slate-300 hover:border-gold-500/40'
-                    : 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-emerald-glow scale-105'
+                    ? 'bg-white border border-slate-300 text-slate-700 hover:border-amber-400'
+                    : 'bg-emerald-600 text-white'
                 }`}
               >
-                {isMuted ? <MicOff className="w-4 h-4 text-rose-400" /> : <Mic className="w-4 h-4 animate-pulse" />}
+                {isMuted ? <MicOff className="w-4 h-4 text-rose-600" /> : <Mic className="w-4 h-4" />}
                 <span>{isMuted ? 'Unmute' : 'Mute'}</span>
               </button>
 
               {/* Raise Hand Button */}
               <button
                 onClick={handleRaiseHand}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition-all shadow-md ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition-all shadow-sm ${
                   hasRaisedHand
-                    ? 'bg-gold-500 text-midnight-950 shadow-gold-glow scale-105'
-                    : 'glass-glow-gold text-gold-200'
+                    ? 'bg-amber-600 text-white'
+                    : 'bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100'
                 }`}
               >
                 <Hand className="w-4 h-4" />
                 <span>{hasRaisedHand ? 'Hand Raised' : 'Raise Hand'}</span>
               </button>
 
-              {/* STOP RECITATION BUTTON (Prominent Red for Ustadh / Reciter) */}
+              {/* STOP RECITATION BUTTON */}
               {(isHost || activeReciter.name === user?.name) && (
                 <button
                   onClick={handleStopActiveReciter}
-                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/50 font-extrabold text-xs transition-all shadow-sm"
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 font-extrabold text-xs transition-all shadow-sm"
                   title="Stop Recitation Turn"
                 >
-                  <Square className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+                  <Square className="w-3.5 h-3.5 fill-rose-600 text-rose-600" />
                   <span>Stop Recitation</span>
                 </button>
               )}
@@ -623,27 +614,27 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
               <button
                 onClick={() => setShowSidePanel(showSidePanel === 'queue' ? null : 'queue')}
                 className={`p-2.5 rounded-2xl border transition-all ${
-                  showSidePanel === 'queue' ? 'bg-gold-500/20 text-gold-300 border-gold-500/40' : 'glass-card border-white/10 text-slate-300'
+                  showSidePanel === 'queue' ? 'bg-amber-50 text-amber-800 border-amber-300' : 'bg-white border-slate-200 text-slate-700'
                 }`}
                 title="Recitation Queue"
               >
-                <Hand className="w-4 h-4" />
+                <Hand className="w-4 h-4 text-amber-600" />
               </button>
 
               <button
                 onClick={() => setShowSidePanel(showSidePanel === 'chat' ? null : 'chat')}
                 className={`p-2.5 rounded-2xl border transition-all ${
-                  showSidePanel === 'chat' ? 'bg-gold-500/20 text-gold-300 border-gold-500/40' : 'glass-card border-white/10 text-slate-300'
+                  showSidePanel === 'chat' ? 'bg-amber-50 text-amber-800 border-amber-300' : 'bg-white border-slate-200 text-slate-700'
                 }`}
                 title="In-Call Chat & Notes"
               >
-                <MessageSquare className="w-4 h-4" />
+                <MessageSquare className="w-4 h-4 text-amber-600" />
               </button>
 
               {/* Leave Call */}
               <button
                 onClick={handleMuteSelf}
-                className="p-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white shadow-md transition-all"
+                className="p-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-all"
                 title="Leave Call"
               >
                 <PhoneOff className="w-4 h-4" />
@@ -656,14 +647,14 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
 
         {/* RIGHT SIDE PANEL (Queue, Chat, Members) */}
         {showSidePanel && (
-          <div className="lg:col-span-4 rounded-3xl glass-panel p-5 border border-white/15 shadow-glass-md flex flex-col min-h-[480px]">
+          <div className="lg:col-span-4 rounded-3xl bg-white p-5 border border-slate-200 shadow-sm flex flex-col min-h-[480px]">
             
             {/* Panel Tabs */}
-            <div className="flex items-center p-1 rounded-2xl glass-card border border-white/10 mb-4 text-xs font-bold">
+            <div className="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 mb-4 text-xs font-bold">
               <button
                 onClick={() => setShowSidePanel('queue')}
                 className={`flex-1 py-1.5 rounded-xl transition-all ${
-                  showSidePanel === 'queue' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40' : 'text-slate-400'
+                  showSidePanel === 'queue' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
                 }`}
               >
                 Queue ({queue.length})
@@ -671,7 +662,7 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
               <button
                 onClick={() => setShowSidePanel('chat')}
                 className={`flex-1 py-1.5 rounded-xl transition-all ${
-                  showSidePanel === 'chat' ? 'bg-gold-500/20 text-gold-200 border border-gold-500/40' : 'text-slate-400'
+                  showSidePanel === 'chat' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
                 }`}
               >
                 Chat ({chatMessages.length})
@@ -681,12 +672,12 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
             {/* QUEUE TAB */}
             {showSidePanel === 'queue' && (
               <div className="flex-1 flex flex-col">
-                <div className="mb-3 p-2.5 rounded-2xl glass-card border border-white/10 flex items-center justify-between text-xs">
-                  <span className="text-slate-300 font-bold">Target Hizb:</span>
+                <div className="mb-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                  <span className="text-slate-700 font-bold">Target Hizb:</span>
                   <select
                     value={selectedHizbForQueue}
                     onChange={(e) => setSelectedHizbForQueue(Number(e.target.value))}
-                    className="px-2 py-0.5 rounded-xl glass-input text-xs font-bold text-gold-300"
+                    className="px-2 py-0.5 rounded-xl bg-white border border-slate-300 text-xs font-bold text-amber-800"
                   >
                     {[1, 2, 3, 4, 5].map(h => (
                       <option key={h} value={h}>Hizb {h}</option>
@@ -696,28 +687,28 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
 
                 <div className="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[300px]">
                   {queue.length === 0 ? (
-                    <div className="py-12 text-center text-xs text-slate-400 glass-card rounded-2xl border border-white/5">
-                      <CheckCircle className="w-8 h-8 text-slate-500 mx-auto mb-2" />
+                    <div className="py-12 text-center text-xs text-slate-500 bg-slate-50 rounded-2xl border border-slate-200">
+                      <CheckCircle className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                       <p>Queue is empty</p>
-                      <p className="text-[10px] text-gold-400 mt-0.5">Click "Raise Hand" to recite</p>
+                      <p className="text-[10px] text-amber-700 font-bold mt-0.5">Click "Raise Hand" to recite</p>
                     </div>
                   ) : (
                     queue.map((item, idx) => (
-                      <div key={item.id} className="p-2.5 rounded-2xl glass-card border border-white/10 flex items-center justify-between gap-2">
+                      <div key={item.id} className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-gold-500/20 text-gold-300 font-bold text-xs flex items-center justify-center">
+                          <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 font-bold text-xs flex items-center justify-center">
                             {idx + 1}
                           </span>
                           <div>
-                            <p className="text-xs font-bold text-white">{item.name}</p>
-                            <p className="text-[10px] text-slate-400">Target: Hizb {item.hizbTarget || currentHizb}</p>
+                            <p className="text-xs font-bold text-slate-900">{item.name}</p>
+                            <p className="text-[10px] text-slate-500">Target: Hizb {item.hizbTarget || currentHizb}</p>
                           </div>
                         </div>
 
                         {isAdminMode && (
                           <button
                             onClick={() => handleCallNext(item.id)}
-                            className="px-2.5 py-1 rounded-xl bg-emerald-500 text-midnight-950 text-[10px] font-extrabold"
+                            className="px-2.5 py-1 rounded-xl bg-amber-600 text-white text-[10px] font-extrabold"
                           >
                             Call Next
                           </button>
@@ -734,17 +725,17 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
               <div className="flex-1 flex flex-col">
                 <div className="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[300px] mb-3">
                   {chatMessages.length === 0 ? (
-                    <div className="py-12 text-center text-xs text-slate-500">
+                    <div className="py-12 text-center text-xs text-slate-400">
                       No messages yet. Send notes or Ayah citations below.
                     </div>
                   ) : (
                     chatMessages.map(msg => (
-                      <div key={msg.id} className="p-2.5 rounded-2xl glass-card border border-white/5 text-xs">
+                      <div key={msg.id} className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                         <div className="flex items-center justify-between mb-0.5">
-                          <span className="font-bold text-gold-300 text-[11px]">{msg.sender}</span>
-                          <span className="text-[9px] text-slate-500">{msg.timestamp}</span>
+                          <span className="font-bold text-amber-800 text-[11px]">{msg.sender}</span>
+                          <span className="text-[9px] text-slate-400">{msg.timestamp}</span>
                         </div>
-                        <p className="text-slate-200 text-xs">{msg.text}</p>
+                        <p className="text-slate-800 text-xs">{msg.text}</p>
                       </div>
                     ))
                   )}
@@ -757,9 +748,9 @@ export const LiveHalaqahRoom: React.FC<LiveHalaqahRoomProps> = ({
                     placeholder="Send in-call note..."
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-xl glass-input text-xs font-medium"
+                    className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-medium text-slate-900"
                   />
-                  <button type="submit" className="p-2.5 rounded-xl bg-gold-500/20 text-gold-300 border border-gold-500/40">
+                  <button type="submit" className="p-2.5 rounded-xl bg-amber-600 text-white">
                     <Send className="w-4 h-4" />
                   </button>
                 </form>

@@ -4,88 +4,79 @@
 
 @layer base {
   body {
-    @apply bg-[#080D1A] text-slate-100 font-sans antialiased selection:bg-gold-500/30 selection:text-gold-200;
-    background-image: 
-      radial-gradient(at 15% 15%, rgba(26, 42, 75, 0.4) 0px, transparent 45%),
-      radial-gradient(at 85% 20%, rgba(230, 179, 87, 0.1) 0px, transparent 40%),
-      radial-gradient(at 50% 85%, rgba(20, 32, 58, 0.35) 0px, transparent 50%);
-    background-attachment: fixed;
-    color: #F8FAFC;
+    @apply bg-[#F8FAFC] text-slate-800 font-sans antialiased selection:bg-amber-100 selection:text-amber-900;
+    color: #0F172A;
+    background-color: #F8FAFC;
   }
 }
 
-/* 2-Color Unified Glassmorphism Surfaces */
+/* Clean White & Gold Surface Classes (Zero Color Shadows) */
 .glass-panel {
-  background: rgba(13, 21, 39, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(230, 179, 87, 0.18);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 .glass-card {
-  background: rgba(18, 30, 54, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease-in-out;
 }
 
 .glass-card-hover:hover {
-  background: rgba(25, 41, 74, 0.8);
-  border-color: rgba(230, 179, 87, 0.45);
-  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.5), 0 0 25px rgba(230, 179, 87, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  background: #FFFFFF;
+  border-color: #D97706;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
 }
 
 .glass-glow-gold {
-  background: linear-gradient(135deg, rgba(230, 179, 87, 0.18), rgba(184, 123, 23, 0.06));
-  border: 1px solid rgba(230, 179, 87, 0.4);
-  box-shadow: 0 0 30px rgba(230, 179, 87, 0.2), inset 0 1px 0 0 rgba(254, 243, 199, 0.35);
+  background: #FFFDF5;
+  border: 1px solid #F5D065;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
 .glass-input {
-  background: rgba(10, 16, 32, 0.85);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #FFFFFF;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #0F172A;
   transition: all 0.2s ease;
 }
 
 .glass-input:focus {
-  border-color: rgba(230, 179, 87, 0.7);
-  box-shadow: 0 0 15px rgba(230, 179, 87, 0.25);
+  border-color: #D97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
   outline: none;
 }
 
-/* High-Clarity Arabic Quranic Typography */
+/* High-Clarity Arabic Quranic Typography (Rich Black on White) */
 .arabic-text {
   font-family: 'Amiri Quran', 'Amiri', 'Scheherazade New', serif;
-  line-height: 2.4;
+  line-height: 2.5;
   direction: rtl;
   text-align: right;
-  color: #FFFFFF;
+  color: #0F172A;
 }
 
-/* Refined Minimalist Scrollbars */
+/* Minimalist Clean Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(8, 13, 26, 0.6);
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(230, 179, 87, 0.25);
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(230, 179, 87, 0.5);
+  background: #D97706;
 }

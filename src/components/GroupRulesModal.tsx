@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { 
   X, 
   ShieldCheck, 
-  UserX, 
-  HeartHandshake, 
-  BookOpen, 
-  ShieldAlert, 
-  Sparkles, 
-  Moon, 
-  Languages,
+  Languages, 
+  Sparkles,
+  BookOpen,
+  UserX,
+  HeartHandshake,
+  ShieldAlert,
+  Moon,
   CheckCircle2
 } from 'lucide-react';
-import { GROUP_RULES } from '../data/groupRules';
 import { Logo } from './Logo';
+import { GROUP_RULES_LIST } from '../data/groupRules';
 
 interface GroupRulesModalProps {
   isOpen: boolean;
@@ -26,93 +26,103 @@ export const GroupRulesModal: React.FC<GroupRulesModalProps> = ({ isOpen, onClos
 
   const getRuleIcon = (iconName?: string) => {
     switch (iconName) {
-      case 'UserX': return <UserX className="w-5 h-5 text-rose-400" />;
-      case 'HeartHandshake': return <HeartHandshake className="w-5 h-5 text-gold-400" />;
-      case 'BookOpen': return <BookOpen className="w-5 h-5 text-celestial-400" />;
-      case 'ShieldAlert': return <ShieldAlert className="w-5 h-5 text-amber-400" />;
-      case 'Sparkles': return <Sparkles className="w-5 h-5 text-emeraldGlow-400" />;
-      case 'ShieldCheck': return <ShieldCheck className="w-5 h-5 text-celestial-400" />;
-      case 'Moon': return <Moon className="w-5 h-5 text-gold-400" />;
-      default: return <CheckCircle2 className="w-5 h-5 text-gold-400" />;
+      case 'UserX': return <UserX className="w-5 h-5 text-rose-600" />;
+      case 'HeartHandshake': return <HeartHandshake className="w-5 h-5 text-amber-600" />;
+      case 'BookOpen': return <BookOpen className="w-5 h-5 text-amber-600" />;
+      case 'ShieldAlert': return <ShieldAlert className="w-5 h-5 text-amber-600" />;
+      case 'Sparkles': return <Sparkles className="w-5 h-5 text-amber-600" />;
+      case 'ShieldCheck': return <ShieldCheck className="w-5 h-5 text-amber-600" />;
+      case 'Moon': return <Moon className="w-5 h-5 text-amber-600" />;
+      default: return <CheckCircle2 className="w-5 h-5 text-amber-600" />;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-midnight-950/85 backdrop-blur-xl animate-fadeIn">
-      {/* Outer Click Boundary */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
       <div 
-        className="w-full max-w-2xl max-h-[90vh] rounded-3xl glass-panel p-6 sm:p-8 border border-white/20 shadow-glass-lg flex flex-col relative overflow-hidden"
+        className="w-full max-w-2xl max-h-[90vh] rounded-3xl bg-white p-6 sm:p-8 border border-slate-200 shadow-xl flex flex-col relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Ambient Top Glow */}
-        <div className="absolute -top-24 -left-24 w-72 h-72 bg-gold-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-celestial-500/15 rounded-full blur-3xl pointer-events-none" />
-
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 relative z-10">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 relative z-10">
           <div className="flex items-center gap-3">
             <Logo size={40} />
             <div>
-              <h3 className="text-lg font-extrabold text-white">
-                {lang === 'ha' ? 'Dokokin Group na Tilawa Daily' : 'Tilawa Daily Group Guidelines & Rules'}
+              <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                {lang === 'ha' ? 'Dokokin Zauren Tilawa' : 'Tilawa Daily Group Regulations'}
               </h3>
-              <p className="text-xs text-gold-400 font-medium">
-                {lang === 'ha' ? 'Manufarmu ita ce Tilawa da ilmantar da juna' : 'Our purpose is Quran recitation & mutual learning'}
+              <p className="text-xs text-amber-700 font-bold">
+                {lang === 'ha' ? 'Dokoki 8 Na Kula Da Zaure' : '8 Golden Code of Conduct Rules'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Language Switcher */}
-            <button
-              onClick={() => setLang(lang === 'ha' ? 'en' : 'ha')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-card border border-white/10 text-xs font-bold text-slate-200 hover:border-gold-500/40"
-            >
-              <Languages className="w-3.5 h-3.5 text-gold-400" />
-              <span>{lang === 'ha' ? 'English' : 'Hausa'}</span>
-            </button>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-            {/* Close Button */}
+        {/* Language Switcher Bar */}
+        <div className="flex items-center justify-between my-4 relative z-10">
+          <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+            {lang === 'ha' ? 'An rubuta da harshen Hausa da Turanci' : 'Available in Hausa & English'}
+          </span>
+
+          <div className="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-bold w-full sm:w-auto">
             <button
-              onClick={onClose}
-              className="p-2 rounded-xl glass-card border border-white/10 text-slate-300 hover:text-white hover:border-white/30 transition-colors"
+              onClick={() => setLang('ha')}
+              className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl transition-all ${
+                lang === 'ha' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              <X className="w-5 h-5" />
+              Harshen Hausa
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl transition-all ${
+                lang === 'en' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              English
             </button>
           </div>
         </div>
 
-        {/* Rules Feed (Scrollable) */}
-        <div className="flex-1 overflow-y-auto my-4 space-y-3 pr-2 relative z-10">
-          {GROUP_RULES.map((rule) => {
+        {/* Rules Scrollable Content */}
+        <div className="flex-1 overflow-y-auto space-y-3 pr-1 my-2 relative z-10">
+          {GROUP_RULES_LIST.map((rule) => {
             const isSafety = rule.category === 'safety';
+
             return (
               <div
                 key={rule.id}
-                className={`p-4 rounded-2xl glass-card border transition-all flex items-start gap-3.5 ${
+                className={`p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
                   isSafety 
-                    ? 'border-rose-500/30 bg-rose-950/15' 
-                    : 'border-white/10 hover:border-gold-500/30'
+                    ? 'border-rose-200 bg-rose-50/50' 
+                    : 'border-slate-200 bg-white hover:border-amber-300'
                 }`}
               >
                 <div className={`p-2 rounded-xl flex-shrink-0 ${
-                  isSafety ? 'bg-rose-500/20 border border-rose-500/30' : 'bg-gold-500/10 border border-gold-500/20'
+                  isSafety ? 'bg-rose-100 border border-rose-200' : 'bg-amber-50 border border-amber-200'
                 }`}>
                   {getRuleIcon(rule.iconName)}
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       Rule #{rule.id}
                     </span>
                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      isSafety ? 'bg-rose-500/20 text-rose-300' : 'bg-gold-500/20 text-gold-300'
+                      isSafety ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
                     }`}>
                       {rule.category.toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-sm font-semibold text-white leading-relaxed">
+                  <p className="text-sm font-semibold text-slate-900 leading-relaxed">
                     {lang === 'ha' ? rule.hausaText : rule.englishText}
                   </p>
                 </div>
@@ -122,15 +132,15 @@ export const GroupRulesModal: React.FC<GroupRulesModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Modal Footer */}
-        <div className="pt-4 border-t border-white/10 flex items-center justify-between relative z-10">
-          <p className="text-xs text-gold-300 font-arabic font-bold">
-            الله يتقبل منا ومنكم صالح الأعمال • Ameen
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
+          <p className="text-xs text-slate-500">
+            {lang === 'ha' ? 'Kiyaye dokoki yana kawo albarkar tilawa' : 'Compliance maintains the sanctity of recitation'}
           </p>
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-midnight-950 font-bold text-xs shadow-gold-glow transition-all"
+            className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm"
           >
-            {lang === 'ha' ? 'Na Fahimta (I Understand)' : 'I Understand & Agree'}
+            {lang === 'ha' ? 'Na Fahimta' : 'Understood'}
           </button>
         </div>
 
