@@ -1,6 +1,6 @@
-import { HizbInfo, MemberUser } from '../types';
+import { HizbInfo, UserProfile } from '../types';
 
-export function exportKhatmReportCSV(hizbs: HizbInfo[], members: MemberUser[]): void {
+export function exportKhatmReportCSV(hizbs: HizbInfo[], members?: UserProfile[]): void {
   const headers = ['Hizb Number', 'Juz Number', 'Surah Name', 'Arabic Name', 'Status', 'Assigned Reciter'];
   const rows = hizbs.map(h => [
     h.hizbNumber,
