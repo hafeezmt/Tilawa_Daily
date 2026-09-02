@@ -11,8 +11,8 @@ import {
   Moon,
   CheckCircle2
 } from 'lucide-react';
-import { Logo } from './Logo';
-import { GROUP_RULES_LIST } from '../data/groupRules';
+import { GROUP_RULES } from '../data/groupRules';
+import { GroupRuleItem } from '../types';
 
 interface GroupRulesModalProps {
   isOpen: boolean;
@@ -93,7 +93,7 @@ export const GroupRulesModal: React.FC<GroupRulesModalProps> = ({ isOpen, onClos
 
         {/* Rules Scrollable Content */}
         <div className="flex-1 overflow-y-auto space-y-3 pr-1 my-2 relative z-10">
-          {GROUP_RULES_LIST.map((rule) => {
+          {GROUP_RULES.map((rule: GroupRuleItem) => {
             const isSafety = rule.category === 'safety';
 
             return (
