@@ -57,12 +57,12 @@ export const WelcomeGate: React.FC = () => {
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
       
-      {/* Central Luxury Card */}
-      <div className="w-full max-w-xl rounded-3xl glass-panel p-6 sm:p-10 border border-white/20 shadow-glass-lg relative overflow-hidden flex flex-col items-center text-center">
+      {/* Central Card with Champagne Gold Border & Obsidian Navy Glass */}
+      <div className="w-full max-w-xl rounded-3xl glass-panel p-6 sm:p-10 border border-gold-500/25 shadow-glass-lg relative overflow-hidden flex flex-col items-center text-center">
         
-        {/* Glowing Ambient Atmospheric Lights */}
-        <div className="absolute -top-32 -left-32 w-80 h-80 bg-gold-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-celestial-500/20 rounded-full blur-3xl pointer-events-none" />
+        {/* Subtle Ambient Gold Dust Glow */}
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-gold-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-gold-400/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Brand Emblem */}
         <div className="relative mb-4">
@@ -71,36 +71,36 @@ export const WelcomeGate: React.FC = () => {
 
         {/* Crisp Header Typography */}
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-amber-300">Tilawa Daily</span>
+          Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-gold-400">Tilawa Daily</span>
         </h1>
         <p className="text-sm font-arabic text-gold-300 font-bold mt-1 tracking-wide">
           تلاوة يومية • 5 أحزاب
         </p>
         <p className="text-xs text-slate-300 mt-2.5 max-w-md leading-relaxed font-medium">
           {authMode === 'login' 
-            ? 'Sign in with your verified account to enter today’s live recitation halaqah.'
-            : 'Apply for membership. Every application is reviewed and approved by group Ustadhs.'}
+            ? 'Sign in with your verified credentials to enter the live recitation halaqah.'
+            : 'Apply for membership. All applications are reviewed and approved by group Ustadhs.'}
         </p>
 
-        {/* Luxury Feature Highlights */}
+        {/* 2-Color Feature Highlights */}
         <div className="grid grid-cols-3 gap-2.5 w-full my-6">
-          <div className="p-3 rounded-2xl glass-card border border-white/10 hover:border-gold-500/40 flex flex-col items-center text-center transition-all">
-            <Radio className="w-4 h-4 text-emerald-400 mb-1.5 animate-pulse" />
-            <span className="text-[10px] font-bold text-slate-200 uppercase tracking-wider">Live Voice</span>
+          <div className="p-3 rounded-2xl glass-card border border-gold-500/20 hover:border-gold-500/40 flex flex-col items-center text-center transition-all">
+            <Radio className="w-4 h-4 text-gold-400 mb-1.5 animate-pulse" />
+            <span className="text-[10px] font-extrabold text-slate-200 uppercase tracking-wider">Live Voice</span>
           </div>
-          <div className="p-3 rounded-2xl glass-card border border-white/10 hover:border-gold-500/40 flex flex-col items-center text-center transition-all">
+          <div className="p-3 rounded-2xl glass-card border border-gold-500/20 hover:border-gold-500/40 flex flex-col items-center text-center transition-all">
             <BookOpen className="w-4 h-4 text-gold-400 mb-1.5" />
-            <span className="text-[10px] font-bold text-slate-200 uppercase tracking-wider">Mushaf</span>
+            <span className="text-[10px] font-extrabold text-slate-200 uppercase tracking-wider">Mushaf</span>
           </div>
-          <div className="p-3 rounded-2xl glass-card border border-white/10 hover:border-gold-500/40 flex flex-col items-center text-center transition-all">
-            <CheckCircle2 className="w-4 h-4 text-celestial-400 mb-1.5" />
-            <span className="text-[10px] font-bold text-slate-200 uppercase tracking-wider">5-Hizb Tracker</span>
+          <div className="p-3 rounded-2xl glass-card border border-gold-500/20 hover:border-gold-500/40 flex flex-col items-center text-center transition-all">
+            <CheckCircle2 className="w-4 h-4 text-gold-400 mb-1.5" />
+            <span className="text-[10px] font-extrabold text-slate-200 uppercase tracking-wider">5-Hizb Daily</span>
           </div>
         </div>
 
         {/* Security / Error Alert */}
         {authError && (
-          <div className="w-full p-3.5 mb-5 rounded-2xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs font-semibold flex items-center gap-2.5 text-left animate-shake shadow-sm">
+          <div className="w-full p-3.5 mb-5 rounded-2xl bg-rose-950/70 border border-rose-500/50 text-rose-200 text-xs font-semibold flex items-center gap-2.5 text-left animate-shake shadow-sm">
             <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
             <span>{authError}</span>
           </div>
@@ -108,15 +108,15 @@ export const WelcomeGate: React.FC = () => {
 
         {/* PENDING SUBMISSION CONFIRMATION SCREEN */}
         {isSubmittedPending ? (
-          <div className="w-full p-7 rounded-2xl glass-card border border-amber-500/40 bg-amber-500/10 text-center animate-fadeIn my-2">
-            <div className="w-14 h-14 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center mx-auto mb-3.5 border border-amber-500/50 shadow-inner">
+          <div className="w-full p-7 rounded-2xl glass-card border border-gold-500/40 bg-gold-500/10 text-center animate-fadeIn my-2">
+            <div className="w-14 h-14 rounded-full bg-gold-500/20 text-gold-300 flex items-center justify-center mx-auto mb-3.5 border border-gold-500/50 shadow-inner">
               <Clock className="w-7 h-7 animate-pulse" />
             </div>
             <h3 className="text-base font-extrabold text-white">Application Received!</h3>
             <p className="text-xs text-slate-200 mt-2 leading-relaxed">
               Your application for <span className="font-bold text-gold-300">{name}</span> has been submitted.
             </p>
-            <p className="text-xs text-amber-300 font-bold mt-2.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 inline-block">
+            <p className="text-xs text-gold-300 font-bold mt-2.5 px-3 py-1 rounded-full bg-gold-500/20 border border-gold-500/30 inline-block">
               Status: ⏳ PENDING ADMIN APPROVAL
             </p>
             <p className="text-[11px] text-slate-300 mt-3 leading-relaxed">
@@ -136,7 +136,7 @@ export const WelcomeGate: React.FC = () => {
         ) : (
           <>
             {/* Tabs: Sign In vs Apply for Membership */}
-            <div className="w-full flex items-center p-1.5 rounded-2xl glass-card border border-white/10 mb-5 text-xs font-bold">
+            <div className="w-full flex items-center p-1.5 rounded-2xl glass-card border border-gold-500/20 mb-5 text-xs font-bold">
               <button
                 type="button"
                 onClick={() => {
